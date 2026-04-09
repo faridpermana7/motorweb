@@ -1,0 +1,7 @@
+.mt-02 {
+  margin-top: -.2rem
+}
+
+.navbar-vertical .navbar-nav .nav-link[data-bs-toggle=collapse]:after {
+    font-family: "FontAwesome" !important;   /* FA4 font family */
+}

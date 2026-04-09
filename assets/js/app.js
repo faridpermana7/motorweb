@@ -1,12 +1,24 @@
-(function() { 
-  document.addEventListener("DOMContentLoaded", function() {
-    const modalElement = document.getElementById('openMapModal');
-    const modal = new bootstrap.Modal(modalElement);
+(function() {
+  // Wait for bootstrap.js dependencies to load before initializing
+    function initApp() {
+        const modalElement = document.getElementById('openMapModal');
+        if (modalElement && typeof bootstrap !== 'undefined') {
+        const modal = new bootstrap.Modal(modalElement);
+        }
+    }
     
     // API Configuration 
     window.API_BASE_URL = 'http://127.0.0.1:9999'; // Make it globally accessible for debugging
-  
-    function getIndonesianTZLabel() {
+
+    // Check if appReady event has already fired
+    if (window.appReady !== undefined) {
+        initApp();
+    } else {
+        // Wait for appReady event from bootstrap.js
+        window.addEventListener('appReady', initApp, { once: true });
+    }
+
+  function getIndonesianTZLabel() {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         // Map common identifiers to Indonesian zones
@@ -24,18 +36,28 @@
     // Function to weather data from API
     function fetchWeather() {
         const url = `${window.API_BASE_URL}/weather/${window.villageCode}`; 
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
         return fetch(url, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+            headers: headers,
             mode: 'cors',
             credentials: 'include'
         })
         .then(response => {
             console.log('Response status:', response.status);
             if (!response.ok) {
+                if (response.status === 401) {
+                    // Token expired or invalid, redirect to sign-in
+                    window.location.href = 'sign-in.html';
+                    return;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
@@ -227,5 +249,4 @@
             console.log("Modal closed and map cleaned up");
         };
 
-  });
-})();
+  })();

@@ -150,6 +150,25 @@
         });
     }
 
+    function initLocations() {
+        console.log('Locations JS loaded');
+        
+        // loadNavMenu is guaranteed to be available from bootstrap.js
+        if (typeof loadNavMenu === 'function') {
+            loadNavMenu();
+        } else {
+            console.error('loadNavMenu function not found');
+        }
+    }
+
+    // Wait for bootstrap.js to finish loading all dependencies
+    if (window.appReady !== undefined) {
+        // bootstrap.js already fired appReady event
+        initLocations();
+    } else {
+        // Wait for appReady event from bootstrap.js
+        window.addEventListener('appReady', initLocations, { once: true });
+    }
 
     
     // Expose functions to global scope if needed

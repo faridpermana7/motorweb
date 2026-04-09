@@ -2,13 +2,13 @@
   "name": "material-dashboard",
   "version": "3.2.0",
   "description": "Premium Dashboard for Bootstrap 5",
-  "main": "/tables.html",
+  "main": "/dashboard.html",
   "type": "module",
   "directories": {
     "example": "root"
   },
   "scripts": {
-    "start": "http-server . -p 8080 -o pages/tables.html",
+    "start": "http-server . -p 8080 -o pages/dashboard.html",
     "open-app": "gulp open-app",
     "serve": "http-server . -p 8080"
   },
@@ -17,7 +17,7 @@
     "bootstrap 5",
     "dashboard",
     "admin dashboard",
-    "creative tim",
+    "Motor",
     "html dashboard",
     "html css dashboard",
     "web dashboard",
@@ -28,7 +28,7 @@
     "frontend",
     "responsive bootstrap admin dashboard"
   ],
-  "author": "Creative Tim <hello@creative-tim.com> (https://www.creative-tim.com/)",
+  "author": "Motor <hello@creative-tim.com> (https://www.creative-tim.com/)",
   "license": "MIT License",
   "bugs": {
     "url": "https://github.com/creativetimofficial/material-dashboard/issues"
