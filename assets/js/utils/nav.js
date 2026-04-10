@@ -33,13 +33,13 @@ const navHTML = `
               <div class="collapse" id="itemExamples">
                 <ul class="nav nav-sm flex-column">
                   <li class="nav-item">
-                    <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/vr/vr-default.html">
+                    <a class="nav-link text-dark" href="${BASE_PATH}pages/master/items/item-categories.html">
                       <span class="sidenav-mini-icon"> I </span>
                       <span class="sidenav-normal ms-1 ps-1"> Item Categories </span>
                     </a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/vr/vr-info.html">
+                    <a class="nav-link text-dark" href="${BASE_PATH}pages/master/items/item-types.html">
                       <span class="sidenav-mini-icon"> I </span>
                       <span class="sidenav-normal ms-1 ps-1"> Item Types </span>
                     </a>
@@ -54,19 +54,19 @@ const navHTML = `
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/rtl-page.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/x.html">
                 <span class="sidenav-mini-icon"> M </span>
                 <span class="sidenav-normal ms-1 ps-1"> XXX </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/widgets.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/xx.html">
                 <span class="sidenav-mini-icon"> M </span>
                 <span class="sidenav-normal ms-1 ps-1"> XXX </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/charts.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/xxx.html">
                 <span class="sidenav-mini-icon"> M </span>
                 <span class="sidenav-normal ms-1 ps-1"> XXX </span>
               </a>
@@ -82,25 +82,25 @@ const navHTML = `
         <div class="collapse" id="adminExamples">
           <ul class="nav">
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/pricing-page.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/users.html">
                 <span class="sidenav-mini-icon"> A </span>
                 <span class="sidenav-normal ms-1 ps-1"> User </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/rtl-page.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/logins.html">
                 <span class="sidenav-mini-icon"> A </span>
                 <span class="sidenav-normal ms-1 ps-1"> Logins </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/widgets.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/configurations.html">
                 <span class="sidenav-mini-icon"> A </span>
                 <span class="sidenav-normal ms-1 ps-1"> Configuration </span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}admin/admin/charts.html">
+              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/translations.html">
                 <span class="sidenav-mini-icon"> A </span>
                 <span class="sidenav-normal ms-1 ps-1"> Translation </span>
               </a>
@@ -193,7 +193,4 @@ function activateNavLink(link) {
   }
 }
 
-// Make it global
-window.loadNavMenu = loadNavMenu;
-window.setActiveNavLink = setActiveNavLink;
-window.activateNavLink = activateNavLink;
+export { loadNavMenu, setActiveNavLink, activateNavLink };

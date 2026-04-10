@@ -1,14 +1,19 @@
+import { initMap, clearMapMarkers, addMarker, fitBounds, destroyMap } from './utils/mainmap.js';
+
 (function() {
+  let modalElement = null;
+  let modal = null;
+
   // Wait for bootstrap.js dependencies to load before initializing
-    function initApp() {
-        const modalElement = document.getElementById('openMapModal');
-        if (modalElement && typeof bootstrap !== 'undefined') {
-        const modal = new bootstrap.Modal(modalElement);
-        }
-    }
-    
-    // API Configuration 
-    window.API_BASE_URL = 'http://127.0.0.1:9999'; // Make it globally accessible for debugging
+  function initApp() {
+      modalElement = document.getElementById('openMapModal');
+      if (modalElement && typeof bootstrap !== 'undefined') {
+          modal = new bootstrap.Modal(modalElement);
+      }
+  }
+  
+  // API Configuration 
+  window.API_BASE_URL = 'http://127.0.0.1:9999'; // Make it globally accessible for debugging
 
     // Check if appReady event has already fired
     if (window.appReady !== undefined) {
@@ -147,40 +152,15 @@
                 const coords = [lat, lon];
 
                 // Initialize map only once
-                if (!window.currentMap) {
-                    window.currentMap = L.map('map').setView(coords, 12);
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '© OpenStreetMap contributors',
-                        maxZoom: 19,
-                        maxNativeZoom: 19
-                    }).addTo(window.currentMap);
-                } else {
-                    // Reuse existing map
-                    window.currentMap.setView(coords, 12);
-
-                    // Clear old markers
-                    window.currentMap.eachLayer(layer => {
-                        if (!(layer instanceof L.TileLayer)) {
-                            window.currentMap.removeLayer(layer);
-                        }
-                    });
-                }
-
-                // // Add markers
-                // for (const [code, point] of Object.entries(coordsMap)) {
-                //   L.marker(point).addTo(window.currentMap).bindPopup(`Village Code: ${window.villageCode}`);
-                // }
-                
-                L.marker(coords).addTo(window.currentMap).bindPopup(`Village : ${window.villageName}<br>Code : ${window.villageCode}`);
-
-                // Fit bounds to all markers
-                window.currentMap.fitBounds(coords);
+                const map = initMap('map', coords, 12);
+                clearMapMarkers();
+                addMarker(coords, `Village : ${window.villageName}<br>Code : ${window.villageCode}`);
+                fitBounds(coords);
 
                 // Fix rendering inside modal
-                window.currentMap.whenReady(() => {
+                map.whenReady(() => {
                     setTimeout(() => {
-                        window.currentMap.invalidateSize();
+                        map.invalidateSize();
                     }, 100);
                 });
             } else { 
@@ -237,12 +217,7 @@
             if (instance) { 
                 instance.hide(); 
             }
-            if (window.currentMap) { 
-                window.currentMap.remove(); 
-                window.currentMap = null; 
-                // Reset the DOM element so Leaflet can re-init cleanly
-                document.getElementById('map').innerHTML = "";
-            } 
+            destroyMap('map');
             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove()); 
             document.body.classList.remove('modal-open'); 
             document.body.style.removeProperty('padding-right');

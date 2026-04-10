@@ -76,9 +76,7 @@
         ];
 
         // Utility scripts
-        const utilityScripts = [
-            BASE_PATH + '/assets/js/utils/auth.js',
-            BASE_PATH + '/assets/js/utils/nav.js',
+        const utilityScripts = [  
             BASE_PATH + '/assets/js/utils/notifications.js'
         ];
 

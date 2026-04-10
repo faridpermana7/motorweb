@@ -22,9 +22,14 @@ document.getElementById('signInBtn').addEventListener('click', function() {
     })
     .then(response => {
         if (!response.ok) {
-            if(response.status == 401)
-                throw new Error('Please check your username and password.');
-                else throw new Error('The internal server error occurred. Please try again later.');
+            if(response.status == 401){
+                showAlert('Authentication failed: ' + 'Please check your username and password.', 'danger');
+                throw new Error('Please check your username and password.'); 
+            }
+                else{
+                    showAlert('Internal server error: ' + 'Please try again later.', 'danger');
+                    throw new Error('The internal server error occurred. Please try again later.');
+                } 
         }
         return response.json();
     })

@@ -5,3 +5,12 @@
 .navbar-vertical .navbar-nav .nav-link[data-bs-toggle=collapse]:after {
     font-family: "FontAwesome" !important;   /* FA4 font family */
 }
+
+/* DATATABLES */
+.dt-right {
+  text-align: right;
+}.dt-left {
+  text-align: left;
+}.dt-center {
+  text-align: center;
+}
