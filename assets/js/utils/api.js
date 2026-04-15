@@ -1,5 +1,6 @@
 // api.js
-const BASE_PATH = window.location.origin + "/";
+import { API_BASE_URL } from '../config.js';
+
 export async function apiFetch(url, options = {}) {
   const token = localStorage.getItem("access_token");
 
@@ -32,7 +33,22 @@ export async function apiFetch(url, options = {}) {
       showAlert("Internal server error: Please try again later.", "danger");
       throw new Error("Server error");
     }
-  }
+  }else{ 
+    if(options.method && options.method.toUpperCase() == "GET"){
+      showAlert("Retrieved data successfully.", "success");
+    }
+    else if(options.method && options.method.toUpperCase() == "POST"){
+      showAlert("Data created successfully.", "success");
+    }
+    else if(options.method && options.method.toUpperCase() == "PUT"){
+      showAlert("Data updated successfully.", "success");
+    }
+    else if(options.method && options.method.toUpperCase() == "DELETE"){
+      showAlert("Data deleted successfully.", "success");
+    } 
+    else 
+      showAlert("Retrieved data successfully.", "success");
+    } 
 
   return response.json();
 }

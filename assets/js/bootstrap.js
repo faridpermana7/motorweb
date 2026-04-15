@@ -22,8 +22,8 @@
         const cssFiles = [
             '/assets/css/nucleo-icons.css',
             '/assets/css/nucleo-svg.css',
-            '/assets/css/motor.css',
-            '/assets/css/material-dashboard.css?v=3.2.0'
+            '/assets/css/material-dashboard.css?v=3.2.0',
+            '/assets/css/motor.css'
         ];
 
         const externalCSS = [

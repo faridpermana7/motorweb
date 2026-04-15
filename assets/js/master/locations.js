@@ -1,6 +1,7 @@
 "use strict"; 
 import { apiFetch } from '../utils/api.js';
 import { loadNavMenu } from '../utils/nav.js'; 
+import { API_BASE_URL, configReady } from '../config.js';
 
 // Sample data structure - adjust API endpoints as needed
 // const provinceSelect = document.getElementById('provinceSelect');
@@ -12,7 +13,7 @@ let villagesTable; // declare at top of file
 // Fetch provinces on page load
 async function loadProvinces() {
     try {
-        const data = await apiFetch(`${window.API_BASE_URL}/provinces`, {
+        const data = await apiFetch(`${API_BASE_URL}/provinces`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ provinceSelect.addEventListener('change', function() {
     }
     
     // Fetch cities for selected province
-    fetch(`${window.API_BASE_URL}/cities/byparentid/${provinceId}`, {
+    fetch(`${API_BASE_URL}/cities/byparentid/${provinceId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ citySelect.addEventListener('change', function() {
     }
     
     // Fetch districts for selected city
-    fetch(`${window.API_BASE_URL}/districts/byparentid/${cityId}`, {
+    fetch(`${API_BASE_URL}/districts/byparentid/${cityId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -228,7 +229,7 @@ function loadSampleDistricts(cityId) {
 // Function to display villages in table by district ID
 function displayVillagesByDistrictId(districtId) { 
   villagesTable
-    .ajax.url(`${window.API_BASE_URL}/villages/byparentid/${districtId}`)
+    .ajax.url(`${API_BASE_URL}/villages/byparentid/${districtId}`)
     .load();
 }
 
@@ -236,7 +237,7 @@ function loadDatatables() {
     // Initialize once
     villagesTable = $('#villagesTable').DataTable({
     ajax: {
-        url: `${window.API_BASE_URL}/villages/byparentid/0`, // default or placeholder
+        url: `${API_BASE_URL}/villages/byparentid/0`, // default or placeholder
         dataSrc: ""
     },
     columns: [
@@ -245,6 +246,16 @@ function loadDatatables() {
         { data: "code" },
         { data: "district_id" }
     ],
+    layout: {
+        topStart: {
+            buttons: [
+                { extend: 'create', editor: editor },
+                { extend: 'edit', editor: editor },
+                { extend: 'remove', editor: editor }
+            ]
+        }
+    },
+    select: true,
     responsive: true,
     pageLength: 10
     }); 
@@ -255,7 +266,8 @@ function initLocations() {
     loadNavMenu();
 }
 
-function onAppReady() {
+async function onAppReady() {
+  await configReady;
   initLocations();
   loadProvinces();
   loadDatatables();

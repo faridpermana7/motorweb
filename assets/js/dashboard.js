@@ -1,8 +1,10 @@
 // dashboard.js
 import { loadNavMenu } from './utils/nav.js';
+import { configReady } from './config.js';
 
-(function() {
-    function initDashboard() {
+(async function() {
+    async function initDashboard() {
+        await configReady;
         console.log('Dashboard JS loaded');
         loadNavMenu();
     }

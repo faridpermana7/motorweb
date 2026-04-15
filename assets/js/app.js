@@ -1,4 +1,5 @@
 import { initMap, clearMapMarkers, addMarker, fitBounds, destroyMap } from './utils/mainmap.js';
+import { API_BASE_URL, AUTH_LOGOUT_ENDPOINT } from './config.js';
 
 (function() {
   let modalElement = null;
@@ -13,7 +14,8 @@ import { initMap, clearMapMarkers, addMarker, fitBounds, destroyMap } from './ut
   }
   
   // API Configuration 
-  window.API_BASE_URL = 'http://127.0.0.1:9999'; // Make it globally accessible for debugging
+  window.API_BASE_URL = API_BASE_URL; // Make it globally accessible for debugging
+  window.AUTH_LOGOUT_ENDPOINT = AUTH_LOGOUT_ENDPOINT;
 
     // Check if appReady event has already fired
     if (window.appReady !== undefined) {

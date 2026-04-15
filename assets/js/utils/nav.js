@@ -1,4 +1,6 @@
 // Navigation menu utility, This file contains the shared navigation menu HTML and insertion logic
+import { API_BASE_URL, configReady } from '../config.js';
+
 const BASE_PATH = window.location.origin + "/";
 
 const navHTML = `
@@ -130,7 +132,7 @@ const navHTML = `
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark" href="${BASE_PATH}pages/sign-in.html">
+        <a id="logout-link" class="nav-link text-dark" href="${BASE_PATH}pages/sign-in.html">
           <i class="material-symbols-rounded opacity-5">logout</i>
           <span class="nav-link-text ms-1">Log Out</span>
         </a>
@@ -147,6 +149,81 @@ function loadNavMenu(containerSelector = '#sidenav-main') {
 
   sidenav.innerHTML = navHTML;
   setActiveNavLink(sidenav);
+  attachLogoutHandler(sidenav);
+}
+
+function attachLogoutHandler(sidenav) {
+  const logoutLink = sidenav.querySelector('#logout-link');
+  if (!logoutLink) {
+    return;
+  }
+
+  logoutLink.addEventListener('click', async event => {
+    event.preventDefault();
+    await handleLogout();
+  });
+}
+
+function getLogoutEndpoint() {
+  if (!window.AUTH_LOGOUT_ENDPOINT) {
+    return null;
+  }
+
+  const endpoint = window.AUTH_LOGOUT_ENDPOINT;
+  return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+}
+
+function clearSessionAndRedirect() {
+  localStorage.removeItem('access_token');
+  window.location.href = `${BASE_PATH}pages/sign-in.html`;
+}
+
+async function performLogoutRequest(logoutUrl) {
+  const token = localStorage.getItem('access_token');
+  const headers = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(logoutUrl, {
+    method: 'POST',
+    headers,
+    mode: 'cors',
+    credentials: 'include'
+  });
+
+  if (response.status === 404) {
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Logout request failed with status ${response.status}`);
+  }
+
+  return response.json().catch(() => null);
+}
+
+async function handleLogout() {
+  await configReady;
+  const logoutEndpoint = getLogoutEndpoint() || '/auth/logout';
+  const logoutUrl = `${API_BASE_URL}${logoutEndpoint}`;
+
+  const invalidLocalPattern = '127.0.0.1:8080';
+  if (logoutUrl.includes(invalidLocalPattern) || logoutUrl.startsWith(window.location.origin)) {
+    console.error('Invalid logout URL detected; aborting logout to avoid bad API call.', logoutUrl);
+    return;
+  }
+
+  try {
+    await performLogoutRequest(logoutUrl);
+    clearSessionAndRedirect();
+  } catch (error) {
+    console.warn('Logout API request failed:', error);
+  }
 }
 
 function setActiveNavLink(sidenav) {
