@@ -11,11 +11,7 @@ import { API_BASE_URL, AUTH_LOGOUT_ENDPOINT } from './config.js';
       if (modalElement && typeof bootstrap !== 'undefined') {
           modal = new bootstrap.Modal(modalElement);
       }
-  }
-  
-  // API Configuration 
-  window.API_BASE_URL = API_BASE_URL; // Make it globally accessible for debugging
-  window.AUTH_LOGOUT_ENDPOINT = AUTH_LOGOUT_ENDPOINT;
+  } 
 
     // Check if appReady event has already fired
     if (window.appReady !== undefined) {
@@ -42,7 +38,7 @@ import { API_BASE_URL, AUTH_LOGOUT_ENDPOINT } from './config.js';
     
     // Function to weather data from API
     function fetchWeather() {
-        const url = `${window.API_BASE_URL}/weather/${window.villageCode}`; 
+        const url = `${API_BASE_URL}/weather/${window.villageCode}`; 
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'

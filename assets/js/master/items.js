@@ -6,62 +6,53 @@ import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/date-formater.js';
 
 (function() {
-    let loginsTable; // declare at top of file 
+    let itemsTable; // declare at top of file 
     const userSelect = document.getElementById('userSelect');
 
     
-    // Fetch users on page load
-    async function loadUsers() { 
-        apiFetch(`${API_BASE_URL}/users`)
-            .then(data => {
-                console.log('Users loaded:', data);
-                populateUsers(data);
-            })
-            .catch(err => {
-                console.error('Error loading users:', err); 
-            });
-    }
+    // // Fetch users on page load
+    // async function loadUsers() { 
+    //     apiFetch(`${API_BASE_URL}/users`)
+    //         .then(data => {
+    //             console.log('Users loaded:', data);
+    //             populateUsers(data);
+    //         })
+    //         .catch(err => {
+    //             console.error('Error loading users:', err); 
+    //         });
+    // }
     
-    function populateUsers(users) {
-        userSelect.innerHTML = '<option value="">-- Choose User --</option>';
+    // function populateUsers(users) {
+    //     userSelect.innerHTML = '<option value="">-- Choose User --</option>';
         
-        users.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.id;
-            option.textContent = user.username;
-            userSelect.appendChild(option);
-        });
-    }
+    //     users.forEach(user => {
+    //         const option = document.createElement('option');
+    //         option.value = user.id;
+    //         option.textContent = user.username;
+    //         userSelect.appendChild(option);
+    //     });
+    // }
 
         
-    // Handle user selection change
-    userSelect.addEventListener('change', function() { 
-        $("#editUserId").val(this.value);  
-    });
+    // // Handle user selection change
+    // userSelect.addEventListener('change', function() { 
+    //     $("#editUserId").val(this.value);  
+    // });
 
     function displayDatatables() {  
         const columns = [
             { data: "id" },
-            { data: "user.username" },
-            {
-                data: "time",
-                render: data => formatDate(data),
-                className: "dt-right"
-            },
-            {
-                data: "is_login",
-                render: function (data) {
-                    if (data) {
-                    return '<span class="badge bg-success">Login</span>';
-                    } else {
-                    return '<span class="badge bg-danger">Logout</span>';
-                    }
-                },
-                className: "dt-center"
-            },
-            { data: "ip_address" },
-            { data: "user_agent" },
-            { data: "location" },
+            { data: "code" },
+            { data: "name" },
+            { data: "barcode" },
+            { data: "category_name" }, 
+            { data: "brand" },
+            { data: "description" },
+            { data: "uom_name" }, 
+            { data: "minimum_stock" },
+            { data: "stock" },
+            { data: "cost_price" },
+            { data: "selling_price" },
             {
             data: "created_at",
             render: data => formatDate(data),
@@ -76,21 +67,21 @@ import { formatDate } from '../utils/date-formater.js';
             { data: "updated_by" }
         ];
 
-        loginsTable = initDataTable({
-            tableId: "#loginsTable",
-            url: `${API_BASE_URL}/logins`,
+        itemsTable = initDataTable({
+            tableId: "#itemsTable",
+            url: `${API_BASE_URL}/items`,
             columns,
-            moduleName: "Login"
+            moduleName: "Item"
         });
  
         $(document).on('click', '.add-btn', () => { 
             $("#editPassword").val('');
-            openEditModal("add", {user: {}}); // open edit modal with empty data for adding new login
+            openEditModal("add", {user: {}}); // open edit modal with empty data for adding new item
         });
 
         // Event delegation for buttons
         $(document).on("click", ".edit-btn", function() {
-            const rowData = loginsTable.row($(this).closest("tr")).data();
+            const rowData = itemsTable.row($(this).closest("tr")).data();
             openEditModal("edit", rowData);
         });
 
@@ -104,23 +95,12 @@ import { formatDate } from '../utils/date-formater.js';
         $("#confirmDelete").on("click", handleDeleteConfirm);
     } 
 
-    function whoamI() {
-        apiFetch(`${API_BASE_URL}/auth/me`)
-            .then(login => {
-                // Do something with the login data, e.g., display loginname in the UI
-                console.log("Logged in login:", login);
-            })
-            .catch(err => {
-                console.error("Failed to fetch login info:", err);
-            });
-    }
-
-    async function initLogins() {
+    async function initItems() {
         if (!API_BASE_URL) 
             await configReady;
-        console.log('Logins JS loaded');
+        console.log('Items JS loaded');
         loadNavMenu();
-        loadPageHeader('Logins');
+        loadPageHeader('Items');
         loadFooter();
         displayDatatables();
         // whoamI(); 
@@ -136,7 +116,7 @@ import { formatDate } from '../utils/date-formater.js';
             $("#editUserId").val("");
             $("#editTime").val("");
             $("#editUsername").val("");
-            $(`input[name="editIsLogin"][value="${true}"]`).prop("checked", true);
+            $(`input[name="editIsItem"][value="${true}"]`).prop("checked", true);
             $("#editIpAddress").val("");
             $("#editUserAgent").val("");
         }
@@ -147,13 +127,13 @@ import { formatDate } from '../utils/date-formater.js';
             $("#editUserId").val(rowData.user_id);
             $("#editTime").val(formatDate(rowData.time));
             $("#editUsername").val(rowData.user.username);
-            $(`input[name="editIsLogin"][value="${rowData.is_login}"]`).prop("checked", true);
+            $(`input[name="editIsItem"][value="${rowData.is_item}"]`).prop("checked", true);
             $("#editIpAddress").val(rowData.ip_address);
             $("#editUserAgent").val(rowData.user_agent);
             $("#editLocation").val(rowData.location);
         }
 
-        $("#editTitle").text(state === "add" ? "Add Login" : "Edit Login");
+        $("#editTitle").text(state === "add" ? "Add Item" : "Edit Item");
         $("#editModal").modal("show");
     };
 
@@ -167,34 +147,34 @@ import { formatDate } from '../utils/date-formater.js';
         const id = $("#editId").val();
         const payload = {
             user_id: $("#editUserId").val(),
-            is_login: $('input[name="editIsLogin"]:checked').val() === "true",
+            is_item: $('input[name="editIsItem"]:checked').val() === "true",
             time: new Date($("#editTime").val()).toISOString(),
             ip_address: $("#editIpAddress").val(),
             user_agent: $("#editUserAgent").val(),
             location: $("#editLocation").val(),
             };
 
-        //id null or empty means add new login, otherwise update existing login
+        //id null or empty means add new item, otherwise update existing item
         if(id === '') {
             try {
-                await apiFetch(`${API_BASE_URL}/logins`, {
+                await apiFetch(`${API_BASE_URL}/items`, {
                 method: "POST",
                 body: JSON.stringify(payload)
                 });
                 $("#editModal").modal("hide");
-                loginsTable.ajax.reload();
+                itemsTable.ajax.reload();
             } catch (err) {
                 console.error("Add User failed:", err);
             }
 
         } else {
             try {
-                await apiFetch(`${API_BASE_URL}/logins/${id}`, {
+                await apiFetch(`${API_BASE_URL}/items/${id}`, {
                 method: "PUT",
                 body: JSON.stringify(payload)
                 });
                 $("#editModal").modal("hide");
-                loginsTable.ajax.reload();
+                itemsTable.ajax.reload();
             } catch (err) {
                 console.error("Update failed:", err);
             }
@@ -205,11 +185,11 @@ import { formatDate } from '../utils/date-formater.js';
         const id = $("#deleteId").val();
 
         try {
-            await apiFetch(`${API_BASE_URL}/logins/softdel/${id}`, {
+            await apiFetch(`${API_BASE_URL}/items/softdel/${id}`, {
             method: "PUT"
             });
             $("#deleteModal").modal("hide");
-            loginsTable.ajax.reload();
+            itemsTable.ajax.reload();
         } catch (err) {
             console.error("Delete failed:", err);
         }
@@ -217,9 +197,9 @@ import { formatDate } from '../utils/date-formater.js';
     // Wait for bootstrap.js to finish loading all dependencies
     if (window.appReady !== undefined) {
         // bootstrap.js already fired appReady event
-        initLogins();
+        initItems();
     } else {
         // Wait for appReady event from bootstrap.js
-        window.addEventListener('appReady', initLogins, { once: true });
+        window.addEventListener('appReady', initItems, { once: true });
     } 
 })();

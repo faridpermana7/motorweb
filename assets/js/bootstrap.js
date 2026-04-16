@@ -82,7 +82,7 @@
 
         // Material dashboard
         const dashboardScripts = [
-            BASE_PATH + '/assets/js/utils/material-dashboard.min.js?v=3.2.0'
+            BASE_PATH + '/assets/js/core/material-dashboard.min.js?v=3.2.0'
         ];
 
         // External scripts (loaded asynchronously)

@@ -6,13 +6,14 @@ import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/date-formater.js';
 
 (function() {
-    let usersTable; // declare at top of file 
+    let phrasesTable; // declare at top of file  
 
     function displayDatatables() {  
         const columns = [
-            { data: "id" },
-            { data: "username" },
-            { data: "email" },
+            { data: "id" }, 
+            { data: "phrase" },
+            { data: "translation" },
+            { data: "language" },
             {
             data: "created_at",
             render: data => formatDate(data),
@@ -27,21 +28,21 @@ import { formatDate } from '../utils/date-formater.js';
             { data: "updated_by" }
         ];
 
-        usersTable = initDataTable({
-            tableId: "#usersTable",
-            url: `${API_BASE_URL}/users`,
+        phrasesTable = initDataTable({
+            tableId: "#phrasesTable",
+            url: `${API_BASE_URL}/phrases`,
             columns,
-            moduleName: "User"
+            moduleName: "Phrase"
         });
  
         $(document).on('click', '.add-btn', () => { 
             $("#editPassword").val('');
-            openEditModal("add", { id: '', username: '', email: '' }); // open edit modal with empty data for adding new user
+            openEditModal("add", {user: {}}); // open edit modal with empty data for adding new phrase
         });
 
         // Event delegation for buttons
         $(document).on("click", ".edit-btn", function() {
-            const rowData = usersTable.row($(this).closest("tr")).data();
+            const rowData = phrasesTable.row($(this).closest("tr")).data();
             openEditModal("edit", rowData);
         });
 
@@ -54,24 +55,13 @@ import { formatDate } from '../utils/date-formater.js';
         $("#editForm").on("submit", handleEditSubmit);
         $("#confirmDelete").on("click", handleDeleteConfirm);
     } 
-
-    function whoamI() {
-        apiFetch(`${API_BASE_URL}/auth/me`)
-            .then(user => {
-                // Do something with the user data, e.g., display username in the UI
-                console.log("Logged in user:", user);
-            })
-            .catch(err => {
-                console.error("Failed to fetch user info:", err);
-            });
-    }
-
-    async function initUsers() {
+    
+    async function initPhrases() {
         if (!API_BASE_URL) 
             await configReady;
-        console.log('Users JS loaded');
+        console.log('Phrases JS loaded');
         loadNavMenu();
-        loadPageHeader('Users');
+        loadPageHeader('Phrases');
         loadFooter();
         displayDatatables();
         // whoamI(); 
@@ -79,19 +69,20 @@ import { formatDate } from '../utils/date-formater.js';
 
 
     const openEditModal = (state, rowData) => {
-        if(state === 'add') {
-            $("#editTitle").text('Add User');
-            $("#editId").val('');
-            $("#editUsername").val('');
-            $("#editEmail").val('');
-            $("#editPassword").val('');
-        }else{
-            $("#editTitle").text('Edit User');
-            $("#editId").val(rowData.id);
-            $("#editUsername").val(rowData.username);
-            $("#editEmail").val(rowData.email);
-            // $("#editPassword").val(rowData.password_hash); // we don't want to pre-fill the password field with the hash, so we leave it blank
+        if(state === "add") { 
+            $("#editId").val("");
+            $("#editPhrase").val("");
+            $("#editTranslation").val("");
+            $("#editLanguage").val(""); 
         }
+        else {
+            $("#editId").val(rowData.id);
+            $("#editPhrase").val(rowData.phrase);
+            $("#editTranslation").val(rowData.translation);
+            $("#editLanguage").val(rowData.language);
+        }
+
+        $("#editTitle").text(state === "add" ? "Add Phrase" : "Edit Phrase");
         $("#editModal").modal("show");
     };
 
@@ -104,32 +95,32 @@ import { formatDate } from '../utils/date-formater.js';
         e.preventDefault();
         const id = $("#editId").val();
         const payload = {
-            username: $("#editUsername").val(),
-            email: $("#editEmail").val(),
-            password: $("#editPassword").val() //we use password instead of password_hash because the API will hash it before saving to database
-        };
+            phrase: $("#editPhrase").val(),
+            translation: $("#editTranslation").val(),
+            language: $("#editLanguage").val(),
+            };
 
-        //id null or empty means add new user, otherwise update existing user
+        //id null or empty means add new phrase, otherwise update existing phrase
         if(id === '') {
             try {
-                await apiFetch(`${API_BASE_URL}/users`, {
+                await apiFetch(`${API_BASE_URL}/phrases`, {
                 method: "POST",
                 body: JSON.stringify(payload)
                 });
                 $("#editModal").modal("hide");
-                usersTable.ajax.reload();
+                phrasesTable.ajax.reload();
             } catch (err) {
                 console.error("Add User failed:", err);
             }
 
         } else {
             try {
-                await apiFetch(`${API_BASE_URL}/users/${id}`, {
+                await apiFetch(`${API_BASE_URL}/phrases/${id}`, {
                 method: "PUT",
                 body: JSON.stringify(payload)
                 });
                 $("#editModal").modal("hide");
-                usersTable.ajax.reload();
+                phrasesTable.ajax.reload();
             } catch (err) {
                 console.error("Update failed:", err);
             }
@@ -140,11 +131,11 @@ import { formatDate } from '../utils/date-formater.js';
         const id = $("#deleteId").val();
 
         try {
-            await apiFetch(`${API_BASE_URL}/users/softdel/${id}`, {
+            await apiFetch(`${API_BASE_URL}/phrases/softdel/${id}`, {
             method: "PUT"
             });
             $("#deleteModal").modal("hide");
-            usersTable.ajax.reload();
+            phrasesTable.ajax.reload();
         } catch (err) {
             console.error("Delete failed:", err);
         }
@@ -152,9 +143,9 @@ import { formatDate } from '../utils/date-formater.js';
     // Wait for bootstrap.js to finish loading all dependencies
     if (window.appReady !== undefined) {
         // bootstrap.js already fired appReady event
-        initUsers();
+        initPhrases();
     } else {
         // Wait for appReady event from bootstrap.js
-        window.addEventListener('appReady', initUsers, { once: true });
+        window.addEventListener('appReady', initPhrases, { once: true });
     } 
 })();

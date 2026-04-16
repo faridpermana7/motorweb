@@ -25,6 +25,9 @@ export function initDataTable({ tableId, url, columns, moduleName }) {
     ],
     responsive: true,
     pageLength: 10,
+    scrollX: true,
+    paging: true,
+    autoWidth: false,
     initComplete: function () {
       $(`${tableId}_filter`).prepend(
         `<div class="add-datatables">

@@ -43,6 +43,18 @@
   background-image: linear-gradient(195deg, #42424a 0%, #191919 100%);
   color: #808080;
 }
+.dataTables_wrapper {
+    overflow-x: auto !important;
+} 
+table.dataTable td {
+    white-space: nowrap !important;   /* keep each cell in one line */
+}
+table.dataTable tbody th,
+table.dataTable tbody td {
+    padding: 4px 8px;   /* reduce vertical and horizontal padding */
+    line-height: 1.2;   /* tighter line height */
+}
+
 
 /* INPUT */
 input.form-control {
@@ -105,5 +117,10 @@ select option:hover {
   color: #000;
 }
 
-
+/* ALERT */
+.alert  {
+    position: fixed;       /* or absolute, depending on your layout */
+    top: 40px !important;             /* adjust as needed */
+    z-index: 9999 !important;         /* higher than your card’s z-index */
+}
 
