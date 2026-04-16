@@ -13,3 +13,19 @@ export function formatDate(rawDate) {
   const second = String(date.getSeconds()).padStart(2, "0");
   return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
+
+// Format number as Indonesian Rupiah
+export function formatCurrency(value) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0
+  }).format(value);
+} 
+
+// Remove formatting and return raw number
+export function unformatCurrency(value) {
+  // Remove everything except digits
+  let raw = value.replace(/\D/g, "");
+  return raw ? parseInt(raw, 10) : 0;
+}

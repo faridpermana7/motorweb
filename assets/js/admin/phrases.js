@@ -3,7 +3,7 @@ import { API_BASE_URL, configReady } from '../config.js';
 import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
-import { formatDate } from '../utils/date-formater.js';
+import { formatDate } from '../utils/data-formater';
 
 (function() {
     let phrasesTable; // declare at top of file  
