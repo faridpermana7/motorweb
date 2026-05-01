@@ -17,14 +17,16 @@ function showNotification(message, type) {
 
 // Make it global
 window.showNotification = showNotification;
-
+{/* <i class="material-symbols-rounded">error</i> */}
 function showAlert(message, variant = 'primary', timeout = 3000) {
+    const icontype = variant === 'danger' ? 'error' : (variant === 'success' ? 'check_circle' : 'info');
     const alertId = `global-alert-${Date.now()}`;
     const wrapper = document.createElement('div');
     wrapper.id = alertId;
-    wrapper.className = `alert alert-${variant} alert-dismissible fade show position-fixed top-0 end-0 m-3 z-index-2051`;
+    wrapper.className = `alert alert-${variant} d-flex align-items-center alert-dismissible fade show position-fixed top-0 end-0 m-3 z-index-2051`;
     wrapper.setAttribute('role', 'alert');
-    wrapper.innerHTML = `<strong>${variant.charAt(0).toUpperCase() + variant.slice(1)}!</strong> ${message}<button type="button" class="btn-close mt-02" data-bs-dismiss="alert" aria-label="Close">X</button>`;
+    // wrapper.innerHTML = `<strong>${variant.charAt(0).toUpperCase() + variant.slice(1)}!</strong> ${message}<button type="button" class="btn-close mt-02" data-bs-dismiss="alert" aria-label="Close">X</button>`;
+    wrapper.innerHTML = `<i class="material-symbols-rounded me-2">${icontype}</i> <span>${message}</span><button type="button" class="btn-close mt-02" data-bs-dismiss="alert" aria-label="Close">X</button>`;
 
     document.body.appendChild(wrapper);
 

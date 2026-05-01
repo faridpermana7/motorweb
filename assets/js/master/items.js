@@ -181,9 +181,11 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             $("#editCode").val(rowData.code);
             $("#editName").val(rowData.name);
             $("#editBarcode").val(rowData.barcode);
+            $("#editCategoryId").val(rowData.category_id);
             $("#editCategoryName").val(rowData.category_name);
             $("#editBrand").val(rowData.brand);
             $("#editDescription").val(rowData.description);
+            $("#editUomId").val(rowData.uom_id);
             $("#editUomName").val(rowData.uom_name);
             $("#editMinimumStock").val(rowData.minimum_stock);
             $("#editStock").val(rowData.stock);
@@ -207,22 +209,31 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             code: $("#editCode").val(),
             name: $("#editName").val(),
             barcode: $("#editBarcode").val(),
-            category_id: $("#editCategoryId").val(),
+            category_id: $("#editCategoryId").val() ? parseInt($("#editCategoryId").val()) : null,
             brand: $("#editBrand").val(),
             description: $("#editDescription").val(),
-            uom_id: $("#editUomId").val(),
-            minimum_stock: $("#editMinimumStock").val(),
-            stock: $("#editStock").val(),
-            selling_price: unformatCurrency($("#editSellingPrice").val()),
-            cost_price: unformatCurrency($("#editCostPrice").val())
-        }; 
+            uom_id: $("#editUomId").val() ? parseInt($("#editUomId").val()) : null,
+            minimum_stock: $("#editMinimumStock").val() ? parseInt($("#editMinimumStock").val()) : 0,
+            stock: $("#editStock").val() ? parseInt($("#editStock").val()) : 0,
+            selling_price: unformatCurrency($("#editSellingPrice").val()) || 0,
+            cost_price: unformatCurrency($("#editCostPrice").val()) || 0
+        };
+
+        console.log('Sending payload:', payload); // Debug log
+
+        // Basic validation
+        if (!payload.code || !payload.name) {
+            await alert("Code and Name are required fields.", "warning");
+            return;
+        } 
 
         //id null or empty means add new item, otherwise update existing item
         if(id === '') {
             try {
                 await apiFetch(`${API_BASE_URL}/items`, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                showSuccess: true
                 });
                 $("#editModal").modal("hide");
                 itemsTable.ajax.reload();
@@ -234,7 +245,8 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             try {
                 await apiFetch(`${API_BASE_URL}/items/${id}`, {
                 method: "PUT",
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                showSuccess: true
                 });
                 $("#editModal").modal("hide");
                 itemsTable.ajax.reload();
@@ -249,7 +261,8 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
 
         try {
             await apiFetch(`${API_BASE_URL}/items/softdel/${id}`, {
-            method: "PUT"
+            method: "PUT",
+            showSuccess: false
             });
             $("#deleteModal").modal("hide");
             itemsTable.ajax.reload();

@@ -1,6 +1,9 @@
 .mt-02 {
   margin-top: -.2rem
 }
+.pl-0 {
+  padding-left: 0 !important;
+}
 
 .navbar-vertical .navbar-nav .nav-link[data-bs-toggle=collapse]:after {
     font-family: "FontAwesome" !important;   /* FA4 font family */
@@ -123,4 +126,115 @@ select option:hover {
     top: 40px !important;             /* adjust as needed */
     z-index: 9999 !important;         /* higher than your card’s z-index */
 }
+.alert i {
+  font-size: 30px;   /* adjust icon size */
+  line-height: 1;    /* keeps it centered */
+}
+.alert span {
+  flex-grow: 1;      /* text takes available space */
+}
 
+
+/* CASHIER */
+  .cashier-product-card {
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease;
+    border: 1px solid rgba(145, 158, 171, 0.16);
+    border-radius: 1rem;
+  }
+  .cashier-product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 32px rgba(15, 15, 15, 0.08);
+  }
+  .cashier-product-image {
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7fafc;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+  }
+  .cashier-product-image i {
+    font-size: 2.4rem;
+    color: #c4cdd6;
+  }
+  .cashier-quantity-input {
+    /* width: 100%;
+    min-width: 90px; */
+    max-width: 50px;   /* or any width you prefer */
+    flex: 0 0 50px;    /* prevents it from stretching */
+    text-align: center;
+  }
+  .cashier-mini-badge {
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.45em 0.7em;
+    border-radius: 1rem;
+  }
+  .cart-summary-card {
+    min-height: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 1rem;
+    box-shadow: 0 24px 64px rgba(15, 15, 15, 0.06);
+    border: 1px solid rgba(145, 158, 171, 0.16);
+  }
+#productGrid {
+  max-height: 750px;   /* or any height you want */
+  overflow-y: auto;    /* enables vertical scroll */
+  border: 1px solid #ccc; /* optional, just to visualize */
+  padding: 1px;
+}
+#table-cashier .table-responsive {
+  max-height: 310px;
+  overflow-y: auto;
+  overflow-x: auto; /* keep Bootstrap’s horizontal scroll */
+}
+.btn {
+  height: calc(100%); /* match the select height */
+}
+input.form-control #discountInput{
+  border: 1px solid #ced4da !important;
+}
+.input-group .form-select {
+  flex: 1; /* let select fill space */
+}
+.input-group .btn {
+  border-radius: 0; /* remove rounded edge so it attaches flush */
+  padding: 13px 14px !important; /* match select padding */
+  margin: 0px;
+  margin-left: -4px !important; /* slight overlap to hide border */
+}
+.btn-pink {
+  background-color: #e83e8c; /* Bootstrap's pink shade */
+  color: #fff;
+  border-color: #e83e8c;
+}
+
+.btn-pink:hover {
+  background-color: #d63384;
+  border-color: #d63384;
+}
+ 
+.input-group .btn-outline-secondary {
+  border: none !important;
+  border-radius: 0 !important;
+  background-color: #d4d4d4 !important;
+  color: #737373 !important;
+  padding: 2px 5px !important
+}
+.btn-outline-secondary span {
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.input-group:not(.has-validation)> :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu), .input-group:not(.has-validation)>.dropdown-toggle:nth-last-child(n+3){
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+input.form-control.cashier-quantity-input {
+  border: none !important;
+  box-shadow: none !important;
+}

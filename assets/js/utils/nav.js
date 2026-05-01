@@ -21,6 +21,12 @@ const navHTML = `
         </a>
       </li>
       <li class="nav-item">
+        <a class="nav-link text-dark" href="${BASE_PATH}pages/cashier.html">
+          <i class="material-symbols-rounded opacity-5">receipt_long</i>
+          <span class="nav-link-text ms-1">Cashier</span>
+        </a>
+      </li>
+      <li class="nav-item">
         <a data-bs-toggle="collapse" href="#masterExamples" class="nav-link text-dark" aria-controls="masterExamples" role="button" aria-expanded="false">
           <i class="material-symbols-rounded opacity-5">contract</i>
           <span class="nav-link-text ms-1 ps-1">Master</span>
