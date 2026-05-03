@@ -64,7 +64,10 @@ document.getElementById('signInBtn').addEventListener('click', async function() 
                     // Assuming the response has 'access_token'
                     if (data.access_token) {
                         // Store the token in localStorage
-                        localStorage.setItem('access_token', data.access_token);
+                        
+                        localStorage.setItem('access_token', data.access_token); 
+                        localStorage.setItem("menus", JSON.stringify(data.menus || []));
+
                         // Show success alert and redirect
                         showAlert('Login successful! Redirecting...', 'success');
                         setTimeout(() => {

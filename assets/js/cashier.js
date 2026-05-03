@@ -25,6 +25,7 @@ const ui = {
   paySaleButton: document.getElementById('paySaleButton'),
   cancelSaleButton: document.getElementById('cancelSaleButton'),
   printSaleButton: document.getElementById('printSaleButton'),
+  receiptContainer: document.querySelector('.receipt'),
 };
 
 // function formatCurrency(value) {
@@ -177,6 +178,111 @@ function resetSale() {
   renderCart();
 }
 
+function buildReceiptHtml() {
+  const totals = computeTotals();
+  const discountAmount = Number(state.discount) || 0;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  
+  // Thermal printer format (32 chars width for 80mm)
+  const WIDTH = 32;
+  const separator = '-'.repeat(WIDTH);
+  
+  // Helper to right-align text
+  const rightAlign = (label, value) => {
+    const valueStr = String(value);
+    const available = WIDTH - label.length - 3; // 3 chars for spacing
+    const spacing = Math.max(1, available - valueStr.length);
+    return label + ' '.repeat(spacing) + valueStr;
+  };
+  
+  // Item lines - format: qty x name on first line, price right-aligned on second line
+  const itemLines = state.cart.map(item => {
+    const qty = `${item.quantity}x`;
+    const price = formatCurrency(item.price * item.quantity);
+    const name = item.name.substring(0, 22);
+    const firstLine = qty + ' ' + name;
+    const secondLine = ' '.repeat(WIDTH - price.length) + price;
+    return firstLine + '\n' + secondLine;
+  }).join('\n');
+
+  const receiptText = `SPAREPART MOTOR HAJI SUKI
+${separator}
+Tgl: ${dateStr} ${timeStr}
+${separator}
+BARANG                       TOTAL
+${separator}   
+
+${itemLines}
+
+${separator}
+${rightAlign('Sub Total', formatCurrency(totals.gross))}
+${rightAlign('Discount', formatCurrency(discountAmount))}
+${separator}
+${rightAlign('TOTAL', formatCurrency(totals.payable))}
+${rightAlign('BAYAR', formatCurrency(totals.payable))}
+${rightAlign('KEMBALI', formatCurrency(0))}
+${separator}
+
+Terimakasih atas kunjungan
+anda
+
+Kami melayani:
+- Service
+- Spare Part
+- Aksesoris Motor`;
+
+  return `<pre class="receipt-text">${receiptText}</pre>`;
+}
+
+function showPrintPreview() {
+  if (!ui.receiptContainer) {
+    showAlert('Receipt container is missing.', 'danger');
+    return;
+  }
+
+  ui.receiptContainer.innerHTML = buildReceiptHtml();
+  const previewContent = document.getElementById('previewContent');
+  if (previewContent) {
+    previewContent.innerHTML = ui.receiptContainer.innerHTML;
+  }
+
+  const modal = new bootstrap.Modal(document.getElementById('printPreviewModal'));
+  modal.show();
+}
+
+function performPrint() { 
+  const totals = computeTotals();   // your existing function
+  const discountAmount = Number(state.discount) || 0;
+  const now = new Date();
+
+  const payload = {
+    header: "SPAREPART MOTOR HAJI SUKI",
+    date: now.toLocaleDateString("id-ID", { day: "2-digit", month: "2-digit", year: "2-digit" }),
+    time: now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    items: state.cart.map(item => ({
+      name: item.name,
+      qty: item.quantity,
+      price: item.price
+    })),
+    subtotal: totals.gross,
+    discount: discountAmount,
+    total: totals.payable,
+    bayar: totals.payable,
+    kembali: 0
+  };
+
+  fetch("http://127.0.0.1:3000/print", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(console.log)
+  .catch(console.error);
+}
+
 async function initCashier() {
   if (!API_BASE_URL)
     await configReady;
@@ -246,8 +352,18 @@ async function initCashier() {
 //   });
 
   ui.printSaleButton.addEventListener('click', () => {
-    showAlert('Printing sale receipt...', 'info');
+    showPrintPreview();
   });
+
+  // Handle confirm print from modal
+  const confirmPrintBtn = document.getElementById('confirmPrintBtn');
+  if (confirmPrintBtn) {
+    confirmPrintBtn.addEventListener('click', () => {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('printPreviewModal'));
+      if (modal) modal.hide();
+      performPrint(); 
+    });
+  }
 
   ui.paySaleButton.addEventListener('click', () => {
     if (!state.cart.length) {

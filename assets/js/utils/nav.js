@@ -3,149 +3,47 @@ import { API_BASE_URL, configReady } from '../config.js';
 
 const BASE_PATH = window.location.origin + "/";
 
-const navHTML = `
-  <div class="sidenav-header">
-    <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-    <a class="navbar-brand px-4 py-3 m-0" href="${BASE_PATH}pages/dashboard.html">
-      <img src="${BASE_PATH}assets/img/logo-ct-dark.png" class="navbar-brand-img" width="26" height="26" alt="main_logo">
-      <span class="ms-1 text-sm text-dark">Motor</span>
-    </a>
-  </div>
-  <hr class="horizontal dark mt-0 mb-2">
-  <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link active bg-gradient-dark text-white" href="${BASE_PATH}pages/dashboard.html">
-          <i class="material-symbols-rounded opacity-5">dashboard</i>
-          <span class="nav-link-text ms-1">Dashboard</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="${BASE_PATH}pages/cashier.html">
-          <i class="material-symbols-rounded opacity-5">receipt_long</i>
-          <span class="nav-link-text ms-1">Cashier</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#masterExamples" class="nav-link text-dark" aria-controls="masterExamples" role="button" aria-expanded="false">
-          <i class="material-symbols-rounded opacity-5">contract</i>
-          <span class="nav-link-text ms-1 ps-1">Master</span>
-        </a>
-        <div class="collapse" id="masterExamples">
-          <ul class="nav">
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/items.html">
-                <span class="sidenav-mini-icon"> M </span>
-                <span class="sidenav-normal ms-1 ps-1"> Items </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/enum_tables.html">
-                <span class="sidenav-mini-icon"> M </span>
-                <span class="sidenav-normal ms-1 ps-1"> Enum Tables </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/locations.html">
-                <span class="sidenav-mini-icon"> M </span>
-                <span class="sidenav-normal ms-1 ps-1"> Locations </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/master/xxx.html">
-                <span class="sidenav-mini-icon"> M </span>
-                <span class="sidenav-normal ms-1 ps-1"> XXX </span>
-              </a>
-            </li> 
-            <li class="nav-item">
-              <a class="nav-link text-dark" data-bs-toggle="collapse" aria-expanded="false" href="#xxxExamples">
-                <span class="sidenav-mini-icon"> M </span>
-                <span class="sidenav-normal ms-1 ps-1"> XXX <b class="caret"></b></span>
-              </a>
-              <div class="collapse" id="xxxExamples">
-                <ul class="nav nav-sm flex-column">
-                  <li class="nav-item">
-                    <a class="nav-link text-dark" href="${BASE_PATH}pages/master/xxx/xxx-categories.html">
-                      <span class="sidenav-mini-icon"> I </span>
-                      <span class="sidenav-normal ms-1 ps-1"> XXX Categories </span>
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link text-dark" href="${BASE_PATH}pages/master/xxx/xxx-types.html">
-                      <span class="sidenav-mini-icon"> I </span>
-                      <span class="sidenav-normal ms-1 ps-1"> XXX Types </span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a data-bs-toggle="collapse" href="#adminExamples" class="nav-link text-dark" aria-controls="adminExamples" role="button" aria-expanded="false">
-          <i class="material-symbols-rounded opacity-5">contract</i>
-          <span class="nav-link-text ms-1 ps-1">Admin</span>
-        </a>
-        <div class="collapse" id="adminExamples">
-          <ul class="nav">
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/users.html">
-                <span class="sidenav-mini-icon"> A </span>
-                <span class="sidenav-normal ms-1 ps-1"> User </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/logins.html">
-                <span class="sidenav-mini-icon"> A </span>
-                <span class="sidenav-normal ms-1 ps-1"> Logins </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/configurations.html">
-                <span class="sidenav-mini-icon"> A </span>
-                <span class="sidenav-normal ms-1 ps-1"> Configuration </span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link text-dark" href="${BASE_PATH}pages/admin/phrases.html">
-                <span class="sidenav-mini-icon"> A </span>
-                <span class="sidenav-normal ms-1 ps-1"> Translation </span>
-              </a>
-            </li>
-          </ul>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="${BASE_PATH}pages/billing.html">
-          <i class="material-symbols-rounded opacity-5">receipt_long</i>
-          <span class="nav-link-text ms-1">Billing</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="${BASE_PATH}pages/notifications.html">
-          <i class="material-symbols-rounded opacity-5">notifications</i>
-          <span class="nav-link-text ms-1">Notifications</span>
-        </a>
-      </li>
-      <li class="nav-item mt-3">
-        <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Account pages</h6>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="${BASE_PATH}pages/profile.html">
-          <i class="material-symbols-rounded opacity-5">person</i>
-          <span class="nav-link-text ms-1">Profile</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a id="logout-link" class="nav-link text-dark" href="${BASE_PATH}pages/sign-in.html">
-          <i class="material-symbols-rounded opacity-5">logout</i>
-          <span class="nav-link-text ms-1">Log Out</span>
-        </a>
-      </li>
-    </ul>
-  </div>
-`;
+function renderMenu(menuItems, basePath) {
+  return menuItems.map(item => {
+    if (item.children && item.children.length > 0) {
+      // Parent menu with collapsible children
+      const collapseId = `${item.label.replace(/\s+/g, '')}Examples`;
+      return `
+        <li class="nav-item">
+          <a data-bs-toggle="collapse" href="#${collapseId}" class="nav-link text-dark" aria-controls="${collapseId}" role="button" aria-expanded="false">
+            <i class="material-symbols-rounded opacity-5">${item.icon || 'menu'}</i>
+            <span class="nav-link-text ms-1 ps-1">${item.label}</span>
+          </a>
+          <div class="collapse" id="${collapseId}">
+            <ul class="nav">
+              ${renderMenu(item.children, basePath)}
+            </ul>
+          </div>
+        </li>
+      `;
+    } else {
+      let menuli = '';
+      if (item.label === 'Profile') {
+        // add sparator before account pages 
+        menuli = `<li class="nav-item mt-3">
+          <h6 class="ps-4 ms-2 text-uppercase text-xs text-dark font-weight-bolder opacity-5">Account pages</h6>
+        </li>`;
+        }
+      // Leaf menu
+      menuli += `
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="${basePath}${item.path}" ${item.id === 'logout-link' ? 'id="logout-link"' : ''}>
+            <i class="material-symbols-rounded opacity-5">${item.icon || ''}</i>
+            <span class="nav-link-text ms-1">${item.label}</span>
+          </a>
+        </li>
+      `;
+      return menuli;
+
+    }
+  }).join('');
+}
+
 
 function loadNavMenu(containerSelector = '#sidenav-main') {
   const sidenav = document.querySelector(containerSelector);
@@ -153,6 +51,22 @@ function loadNavMenu(containerSelector = '#sidenav-main') {
     return;
   }
 
+  const menus = JSON.parse(localStorage.getItem("menus")) || [];
+  const navHTML = `
+    <div class="sidenav-header">
+      <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+      <a class="navbar-brand px-4 py-3 m-0" href="${BASE_PATH}pages/dashboard.html">
+        <img src="${BASE_PATH}assets/img/logo-ct-dark.png" class="navbar-brand-img" width="26" height="26" alt="main_logo">
+        <span class="ms-1 text-sm text-dark">Motor</span>
+      </a>
+    </div>
+    <hr class="horizontal dark mt-0 mb-2">
+    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+      <ul class="navbar-nav">
+        ${renderMenu(menus, BASE_PATH)}
+      </ul>
+    </div>
+  `;
   sidenav.innerHTML = navHTML;
   setActiveNavLink(sidenav);
   attachLogoutHandler(sidenav);
