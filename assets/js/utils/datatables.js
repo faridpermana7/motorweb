@@ -1,6 +1,6 @@
 import { apiFetch } from "./api.js"; 
 
-export function initDataTable({ tableId, url, columns, moduleName }) {
+export function initDataTable({ tableId, url, columns, moduleName, disableAdd = false }) {
   const table = $(tableId).DataTable({
     dom: '<"d-flex justify-content-between align-items-center"f>rt<"d-flex justify-content-between align-items-center pg-bottom"lip>',
     ajax: (data, callback) => {
@@ -28,7 +28,8 @@ export function initDataTable({ tableId, url, columns, moduleName }) {
     scrollX: true,
     paging: true,
     autoWidth: false,
-    initComplete: function () {
+    initComplete: function () { 
+      if (disableAdd) return; // skip adding button if disabled 
       $(`${tableId}_filter`).prepend(
         `<div class="add-datatables">
            <button class="btn btn-sm btn-dark add-btn ms-2">Add ${moduleName}</button>

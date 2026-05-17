@@ -38,33 +38,7 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
     // Handle type selection change
     typeSelect.addEventListener('change', function() { 
         $("#editTypeId").val(this.value);  
-    });
-
-    // Handle type selection change
-    categorySelect.addEventListener('change', function() { 
-        $("#editCategoryId").val(this.value);  
-    });
-
-    
-    // Format while typing
-    costPriceInput.addEventListener("input", (e) => {
-    let raw = e.target.value.replace(/\D/g, "");
-    if (raw) {
-        e.target.value = formatCurrency(raw);
-    } else {
-        e.target.value = "";
-    }
-    });
-        
-    // Format while typing
-    sellingPriceInput.addEventListener("input", (e) => {
-    let raw = e.target.value.replace(/\D/g, "");
-    if (raw) {
-        e.target.value = formatCurrency(raw);
-    } else {
-        e.target.value = "";
-    }
-    });
+    }); 
 
     function displayDatatables() {  
         const columns = [
@@ -147,6 +121,7 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             $("#editId").val(rowData.id);
             $("#editName").val(rowData.name);
             $("#editPhone").val(rowData.phone);
+            $("#editTypeId").val(rowData.type_id);
             $("#editTypeName").val(rowData.type_name);
             $("#editEmail").val(rowData.email);
             $("#editAddress").val(rowData.address);

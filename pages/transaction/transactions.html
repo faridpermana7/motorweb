@@ -1,0 +1,283 @@
+<!--
+=========================================================
+* Motor Systems v2.0-00.001
+=========================================================
+
+* Copyright 2024 Motor
+* Licensed under MIT
+* Coded by Motor
+* Coded by Motor
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../../assets/img/favicon.png">
+  <title>
+    MAIN MAP
+  </title>
+  <!--     Fonts and icons     -->
+  <!-- Bootstrap application loader - loads all common CSS and JS -->
+  <script src="../../assets/js/bootstrap.js?v=1.0"></script>
+  <!-- Datatables -->
+   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+</head>
+
+<body class="g-sidenav-show  bg-gray-100">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
+    <!-- Nav menu will be loaded here -->
+  </aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
+    <!-- Navbar -->
+    <div id="top-navbar"></div>
+    <!-- End Navbar -->
+    <div class="container-fluid py-2"> 
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-1">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-1">
+              <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                <h6 class="text-white text-capitalize ps-3">Customers</h6>
+                <!-- <button class="btn btn-sm btn-primary add-btn" data-id="">Add User</button> -->
+              </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+              <div class="table-responsive p-0"> 
+                <table id="transactionsTable" class="display">
+                  <thead>
+                    <tr>
+                      <th>ID</th> 
+                      <th>Customer Name</th>
+                      <th>Payment Method</th>
+                      <th>Discount</th>
+                      <th>Tax (%)</th>
+                      <th>Tax Value</th>
+                      <th>Total</th>
+                      <th>Created At</th>
+                      <th>Created By</th>
+                      <th>Updated At</th>
+                      <th>Updated By</th> 
+                      <th>Actions</th> 
+                    </tr>
+                  </thead>
+                  <tbody></tbody> 
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> 
+            <!-- Edit Modal -->
+      <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editTitle"></h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="editForm">
+                <input type="hidden" id="editId"> 
+                <div class="row mb-3">
+                  <div class="col-sm-6" id="customerSelectContainer">
+                    <label for="customerSelect" class="form-label">Select Customer</label>
+                    <select class="form-control" id="customerSelect">
+                    </select>
+                  </div> 
+                  <div class="col-sm-6" id="paymentSelectContainer">
+                    <label for="paymentSelect" class="form-label">Select Payment Method</label>
+                    <select class="form-control" id="paymentSelect">
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="row p-3 border rounded mb-2">  
+                <label class="form-label text-sm">Items</label> 
+                <div class="input-group">
+                  <select class="form-select" id="itemSelect"> 
+                  </select>
+                  <button class="btn btn-pink" type="button" id="addItemButton">
+                    <i class="material-symbols-rounded">add</i>
+                  </button>
+                </div> 
+                </div>
+                <div class="row mb-3">
+                  <div class="coll-md-12">
+                      <div class="table-responsive mb-3">
+                        <table class="table align-items-center mb-0">
+                          <thead>
+                            <tr>
+                              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">#</th>
+                              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Item</th>
+                              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Qty</th>
+                              <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-end">Price</th>
+                              <th class="text-secondary"></th>
+                            </tr>
+                          </thead>
+                          <tbody id="cartTableBody"></tbody>
+                        </table>
+                      </div>
+                  </div> 
+                </div> 
+              <div class="row p-3 border rounded mb-2">
+                  <div class="col-md-4"> 
+                    <!-- Totals -->
+                    <div class="row mb-2">
+                      <div class="col-6 text-secondary">Counts</div>
+                      <div class="col-6 text-start fw-bold" id="cartItemsCount">0</div>
+                    </div>  
+                  </div>
+                  <div class="col-md-8"> 
+                    <div class="row mb-2">
+                      <div class="col-6 text-secondary">Sub Total</div>
+                      <div class="col-6 text-end fw-bold" id="cartGrossPrice">IDR 0</div>
+                      <div class="col-6 text-secondary">Discount (-)</div>
+                      <div class="col-6">
+                        <input id="discountInput" type="text"
+                              class="form-control form-control-sm text-end"
+                              placeholder="0">
+                      </div>
+                          
+                      <div class="col-6">  
+                        <div class="form-check pl-0">
+                          <input class="form-check-input" type="checkbox" id="includeTaxCheckbox">
+                          <label class="form-check-label text-secondary text-sm" for="includeTaxCheckbox">
+                            Include Tax
+                          </label> 
+                        </div>
+                      </div> 
+                      <div class="col-sm-6" id="taxSelectContainer"> 
+                        <select class="form-control" id="taxSelect" aria-placeholder="choose"> 
+                        </select>
+                      </div>   
+                      <div class="col-6 text-secondary" id="taxLabelContainer">TAX (+)</div> 
+                      <div class="col-6 text-end fw-bold" id="cartTaxAmount">IDR 0</div>   
+                    </div>
+                  </div>  
+                </div> 
+                 
+                <div class="row border-top pt-3 mb-3">
+                  <div class="col-6 text-secondary text-lg">Total</div>
+                  <div class="col-6 text-end">
+                    <h4 class="mb-0 fw-bold text-dark" id="cartTotalPrice">IDR 0</h4> 
+                  </div>
+                </div>  
+                <button type="button"class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Modal -->
+      <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirm Delete</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete this transaction?</p>
+              <input type="hidden" id="deleteId">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="button" id="confirmDelete" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="page-footer"></div>
+    </div>
+  </main>
+  <div class="fixed-plugin">
+    <a class="fixed-plugin-button text-dark position-fixed px-3 py-2">
+      <i class="material-symbols-rounded py-2">settings</i>
+    </a>
+    <div class="card shadow-lg">
+      <div class="card-header pb-0 pt-3">
+        <div class="float-start">
+          <h5 class="mt-3 mb-0">Material UI Configurator</h5>
+          <p>See our dashboard options.</p>
+        </div>
+        <div class="float-end mt-4">
+          <button class="btn btn-link text-dark p-0 fixed-plugin-close-button">
+            <i class="material-symbols-rounded">clear</i>
+          </button>
+        </div>
+        <!-- End Toggle Button -->
+      </div>
+      <hr class="horizontal dark my-1">
+      <div class="card-body pt-sm-3 pt-0">
+        <!-- Sidebar Backgrounds -->
+        <div>
+          <h6 class="mb-0">Sidebar Colors</h6>
+        </div>
+        <a href="javascript:void(0)" class="switch-trigger background-color">
+          <div class="badge-colors my-2 text-start">
+            <span class="badge filter bg-gradient-primary" data-color="primary" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-dark active" data-color="dark" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-info" data-color="info" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-success" data-color="success" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-warning" data-color="warning" onclick="sidebarColor(this)"></span>
+            <span class="badge filter bg-gradient-danger" data-color="danger" onclick="sidebarColor(this)"></span>
+          </div>
+        </a>
+        <!-- Sidenav Type -->
+        <div class="mt-3">
+          <h6 class="mb-0">Sidenav Type</h6>
+          <p class="text-sm">Choose between different sidenav types.</p>
+        </div>
+        <div class="d-flex">
+          <button class="btn bg-gradient-dark px-3 mb-2" data-class="bg-gradient-dark" onclick="sidebarType(this)">Dark</button>
+          <button class="btn bg-gradient-dark px-3 mb-2 ms-2" data-class="bg-transparent" onclick="sidebarType(this)">Transparent</button>
+          <button class="btn bg-gradient-dark px-3 mb-2  active ms-2" data-class="bg-white" onclick="sidebarType(this)">White</button>
+        </div>
+        <p class="text-sm d-xl-none d-block mt-2">You can change the sidenav type just on desktop view.</p>
+        <!-- Navbar Fixed -->
+        <div class="mt-3 d-flex">
+          <h6 class="mb-0">Navbar Fixed</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="navbarFixed" onclick="navbarFixed(this)">
+          </div>
+        </div>
+        <hr class="horizontal dark my-3">
+        <div class="mt-2 d-flex">
+          <h6 class="mb-0">Light / Dark</h6>
+          <div class="form-check form-switch ps-0 ms-auto my-auto">
+            <input class="form-check-input mt-1 ms-auto" type="checkbox" id="dark-version" onclick="darkMode(this)">
+          </div>
+        </div>
+        <hr class="horizontal dark my-sm-4">
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    var win = navigator.platform.indexOf('Win') > -1;
+    if (win && document.querySelector('#sidenav-scrollbar')) {
+      var options = {
+        damping: '0.5'
+      }
+      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+    }
+  </script>
+  <!-- Datatables --> 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+ 
+  <!-- Customers page initialization - handles nav menu and transaction data -->
+  <script type="module" src="../../assets/js/transaction/transactions.js"></script> 
+</body>
+
+</html>

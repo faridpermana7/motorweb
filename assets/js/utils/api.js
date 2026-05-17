@@ -39,7 +39,7 @@ export async function apiFetch(url, options = {}) {
         localStorage.removeItem("access_token");
         await alert("Authentication failed: Please sign in again.", "danger");
         window.location.href = `/pages/sign-in.html`;
-        throw new Error("Authentication failed");
+        throw new Error("Authentication failed"); 
       } else {
         // Try to get error details from response
         let errorMessage = "Server error";
@@ -51,6 +51,9 @@ export async function apiFetch(url, options = {}) {
           if (response.status === 422 && errorData.errors) {
             const validationErrors = Object.values(errorData.errors).flat().join(', ');
             errorMessage = `Validation failed: ${validationErrors}`;
+          }
+          else if (errorData.detail) { 
+            errorMessage = errorData.detail;
           } else if (errorData.message) {
             errorMessage = errorData.message;
           } else if (errorData.error) {

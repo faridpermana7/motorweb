@@ -23,6 +23,7 @@
             '/assets/css/nucleo-icons.css',
             '/assets/css/nucleo-svg.css',
             '/assets/css/material-dashboard.css?v=3.2.0',
+            '/node_modules/select2/dist/css/select2.css',
             '/assets/css/motor.css'
         ];
 
@@ -72,7 +73,8 @@
             BASE_PATH + '/assets/js/core/popper.min.js',
             BASE_PATH + '/assets/js/core/bootstrap.min.js',
             BASE_PATH + '/assets/js/plugins/perfect-scrollbar.min.js',
-            BASE_PATH + '/assets/js/plugins/smooth-scrollbar.min.js'
+            BASE_PATH + '/assets/js/plugins/smooth-scrollbar.min.js',
+            BASE_PATH + '/node_modules/select2/dist/js/select2.js'
         ];
 
         // Utility scripts

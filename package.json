@@ -2,13 +2,13 @@
   "name": "material-dashboard",
   "version": "3.2.0",
   "description": "Premium Dashboard for Bootstrap 5",
-  "main": "/dashboard.html",
+  "main": "/sign-in.html",
   "type": "module",
   "directories": {
     "example": "root"
   },
   "scripts": {
-    "start": "http-server . -p 8080 -o pages/dashboard.html",
+    "start": "http-server . -p 8080 -o pages/sign-in.html",
     "open-app": "gulp open-app",
     "serve": "http-server . -p 8080"
   },
@@ -41,6 +41,7 @@
   },
   "homepage": "https://creative-tim.com/product/material-dashboard",
   "dependencies": {
-    "material-dashboard": "^3.0.9"
+    "material-dashboard": "^3.0.9",
+    "select2": "^4.1.0-rc.0"
   }
 }
