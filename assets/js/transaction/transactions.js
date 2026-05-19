@@ -176,27 +176,13 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             url: `${API_BASE_URL}/transactions`,
             columns,
             moduleName: "Transaction",
-            disableAdd: true // set to true to hide Add button
-        });
- 
-        $(document).on('click', '.add-btn', () => {   
-            openEditModal("add", {type: {}, category: {}}); // open edit modal with empty data for adding new transaction
-        });
-
-        // Event delegation for buttons
-        $(document).on("click", ".edit-btn", function() {
-            const rowData = transactionsTable.row($(this).closest("tr")).data();
-            openEditModal("edit", rowData);
-        });
-
-        $(document).on("click", ".delete-btn", function() {
-            const id = $(this).data("id");
-            openDeleteModal(id);
-        });
-
-        // Form handlers
-        $("#editForm").on("submit", handleEditSubmit);
-        $("#confirmDelete").on("click", handleDeleteConfirm);
+            disableAdd: true, // set to true to hide Add button,
+            onAdd: () => openEditModal("add", {}),
+            onEdit: rowData => openEditModal("edit", rowData),
+            onDelete: id => openDeleteModal(id),
+            onSubmit: handleEditSubmit,
+            onConfirmDelete: handleDeleteConfirm
+        }); 
     } 
     // #endregion
          

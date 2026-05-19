@@ -66,28 +66,13 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             tableId: "#customersTable",
             url: `${API_BASE_URL}/customers`,
             columns,
-            moduleName: "Customer"
-        });
- 
-        $(document).on('click', '.add-btn', () => { 
-            $("#editPassword").val('');
-            openEditModal("add", {type: {}, category: {}}); // open edit modal with empty data for adding new customer
-        });
-
-        // Event delegation for buttons
-        $(document).on("click", ".edit-btn", function() {
-            const rowData = customersTable.row($(this).closest("tr")).data();
-            openEditModal("edit", rowData);
-        });
-
-        $(document).on("click", ".delete-btn", function() {
-            const id = $(this).data("id");
-            openDeleteModal(id);
-        });
-
-        // Form handlers
-        $("#editForm").on("submit", handleEditSubmit);
-        $("#confirmDelete").on("click", handleDeleteConfirm);
+            moduleName: "Customer",
+            onAdd: () => openEditModal("add", {}),
+            onEdit: rowData => openEditModal("edit", rowData),
+            onDelete: id => openDeleteModal(id),
+            onSubmit: handleEditSubmit,
+            onConfirmDelete: handleDeleteConfirm
+        }); 
     } 
 
     async function initCustomers() {

@@ -27,6 +27,7 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
     
     function populateEnums(enumData) {
         uomSelect.innerHTML = '<option value="">-- Choose --</option>';
+        categorySelect.innerHTML = '<option value="">-- Choose --</option>';
         
         enumData.forEach(x => {
             if(x.type === 'UOM') {
@@ -114,29 +115,22 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             tableId: "#itemsTable",
             url: `${API_BASE_URL}/items`,
             columns,
-            moduleName: "Item"
-        });
- 
-        $(document).on('click', '.add-btn', () => { 
-            $("#editPassword").val('');
-            openEditModal("add", {uom: {}, category: {}}); // open edit modal with empty data for adding new item
-        });
+            moduleName: "Item",
+            onAdd: () => openEditModal("add", {}),
+            onEdit: rowData => openEditModal("edit", rowData),
+            onDelete: id => openDeleteModal(id),
+            onSubmit: handleEditSubmit,
+            onConfirmDelete: handleDeleteConfirm,
+            enableImport: true,
+            onImport: () => openImportModal(),
+            onImportConfirm: handleImportConfirm
+        }); 
 
-        // Event delegation for buttons
-        $(document).on("click", ".edit-btn", function() {
-            const rowData = itemsTable.row($(this).closest("tr")).data();
-            openEditModal("edit", rowData);
-        });
-
-        $(document).on("click", ".delete-btn", function() {
-            const id = $(this).data("id");
-            openDeleteModal(id);
-        });
-
-        // Form handlers
-        $("#editForm").on("submit", handleEditSubmit);
-        $("#confirmDelete").on("click", handleDeleteConfirm);
+        // // Form handlers
+        // $("#editForm").on("submit", handleEditSubmit);
+        // $("#confirmDelete").on("click", handleDeleteConfirm);
     } 
+  
 
     async function initItems() {
         if (!API_BASE_URL) 
@@ -163,13 +157,13 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             $("#editName").val("");
             $("#editBarcode").val("");
             $("#editCategoryName").val("");
-            $("#editBrand").val("");
+            $("#editBrand").val("ASPIRA");
             $("#editDescription").val("");
             $("#editUomName").val("");
-            $("#editMinimumStock").val("");
-            $("#editStock").val("");
-            $("#editCostPrice").val("");
-            $("#editSellingPrice").val("");
+            $("#editMinimumStock").val("1");
+            $("#editStock").val("12");
+            $("#editCostPrice").val("5000");
+            $("#editSellingPrice").val("10000");
         }
         else {
             $("#uomSelectContainer").hide();   // hide in Edit mode
@@ -197,10 +191,9 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
         $("#editModal").modal("show");
     };
 
-    const openDeleteModal = id => {
-        $("#deleteId").val(id);
-        $("#deleteModal").modal("show");
-    };
+    const openImportModal = () => { 
+        $("#importModal").modal("show");
+    }; 
 
     const handleEditSubmit = async e => {
         e.preventDefault();
@@ -222,7 +215,7 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
         console.log('Sending payload:', payload); // Debug log
 
         // Basic validation
-        if (!payload.code || !payload.name) {
+        if (!payload.name) {
             await alert("Code and Name are required fields.", "warning");
             return;
         } 
@@ -270,7 +263,99 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             console.error("Delete failed:", err);
         }
     };
+
     
+    const handleImportConfirm = async () => {  
+        const fileInput = document.getElementById("csvFile");
+        if (!fileInput.files.length) {
+            alert("Please select a CSV file first");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async (evt) => {
+            const text = evt.target.result;
+            const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
+
+            // 🔹 Validate header
+            const header = rows[0].split(",").map(h => h.trim().toLowerCase());
+            const expected = ["name","uom_id","category_id","brand","description","minimum_stock","stock","cost_price","selling_price","barcode"];
+            for (const col of expected) {
+            if (!header.includes(col)) {
+                alert(`Invalid header: missing ${col}`);
+                return;
+            }
+            }
+
+            // 🔹 Parse and validate rows
+            const items = [];
+            for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i].split(",").map(c => c.trim());
+            if (cols.length < expected.length) continue;
+
+            const obj = {};
+            expected.forEach((col, idx) => obj[col] = cols[idx]);
+
+            // Validation rules
+            if (obj.name.length > 255) {
+                console.error(`Row ${i}: name too long`);
+                continue;
+            }
+            if (obj.brand.length > 100) {
+                console.error(`Row ${i}: brand too long`);
+                continue;
+            }
+            if (isNaN(parseInt(obj.uom_id)) || isNaN(parseInt(obj.category_id))) {
+                console.error(`Row ${i}: uom_id/category_id must be int`);
+                continue;
+            }
+            if (isNaN(parseInt(obj.minimum_stock)) || isNaN(parseInt(obj.stock))) {
+                console.error(`Row ${i}: stock fields must be int`);
+                continue;
+            }
+            if (isNaN(parseFloat(obj.cost_price)) || isNaN(parseFloat(obj.selling_price))) {
+                console.error(`Row ${i}: prices must be float`);
+                continue;
+            }
+
+            // Convert types
+            items.push({
+                name: obj.name,
+                uom_id: parseInt(obj.uom_id),
+                category_id: parseInt(obj.category_id),
+                brand: obj.brand,
+                description: obj.description,
+                minimum_stock: parseInt(obj.minimum_stock),
+                stock: parseInt(obj.stock),
+                cost_price: parseFloat(obj.cost_price),
+                selling_price: parseFloat(obj.selling_price),
+                barcode: obj.barcode || null
+            });
+            }
+
+            if (!items.length) {
+            alert("No valid rows found in CSV");
+            return;
+            }
+            
+            try {
+                await apiFetch(`${API_BASE_URL}/items/import`, {
+                method: "POST",
+                body: JSON.stringify(items),
+                showSuccess: true
+                });
+                $("#importModal").modal("hide");
+                itemsTable.ajax.reload();
+            } catch (err) {
+                console.error("Add Item failed:", err);
+            } 
+        };
+
+        reader.readAsText(file);
+    };
+
     // Wait for bootstrap.js to finish loading all dependencies
     if (window.appReady !== undefined) {
         // bootstrap.js already fired appReady event

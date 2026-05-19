@@ -32,28 +32,13 @@ import { formatDate } from '../utils/data-formater.js';
             tableId: "#enumTable",
             url: `${API_BASE_URL}/enum_tables`,
             columns,
-            moduleName: "Enum Table"
-        });
- 
-        $(document).on('click', '.add-btn', () => { 
-            $("#editPassword").val('');
-            openEditModal("add", {}); // open edit modal with empty data for adding new phrase
-        });
-
-        // Event delegation for buttons
-        $(document).on("click", ".edit-btn", function() {
-            const rowData = enumTable.row($(this).closest("tr")).data();
-            openEditModal("edit", rowData);
-        });
-
-        $(document).on("click", ".delete-btn", function() {
-            const id = $(this).data("id");
-            openDeleteModal(id);
-        });
-
-        // Form handlers
-        $("#editForm").on("submit", handleEditSubmit);
-        $("#confirmDelete").on("click", handleDeleteConfirm);
+            moduleName: "Enum Table",
+            onAdd: () => openEditModal("add", {}),
+            onEdit: rowData => openEditModal("edit", rowData),
+            onDelete: id => openDeleteModal(id),
+            onSubmit: handleEditSubmit,
+            onConfirmDelete: handleDeleteConfirm
+        }); 
     } 
     
     async function initEnumTables() {
