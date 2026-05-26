@@ -4,28 +4,16 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let phrasesTable; // declare at top of file  
 
     function displayDatatables() {  
         const columns = [
-            { data: "id" }, 
-            { data: "phrase" },
-            { data: "translation" },
-            { data: "language" },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+            { data: "phrase", title: '<span data-phrase="Phrase">Phrase</span>' },
+            { data: "translation", title: '<span data-phrase="Translation">Translation</span>' },
+            { data: "language", title: '<span data-phrase="Language">Language</span>' },
         ];
 
         phrasesTable = initDataTable({
@@ -67,7 +55,12 @@ import { formatDate } from '../utils/data-formater.js';
             $("#editLanguage").val(rowData.language);
         }
 
-        $("#editTitle").text(state === "add" ? "Add Phrase" : "Edit Phrase");
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Phrase">Phrase</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 

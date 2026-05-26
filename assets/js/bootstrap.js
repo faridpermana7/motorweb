@@ -1,6 +1,7 @@
 // Bootstrap application - loads all common CSS and JavaScript dependencies
 // This file is loaded first in every page to ensure all dependencies are available
 
+import { loadTranslations, applyTranslations } from './utils/translations.js';
 (function() {
     // Detect base path based on script location
     function getBasePath() {
@@ -62,7 +63,7 @@
                 });
             });
         }, Promise.resolve());
-    }
+    } 
 
     function init() {
         // Load CSS immediately
@@ -106,6 +107,13 @@
                 script.defer = true;
                 document.head.appendChild(script);
             });
+
+
+            // Load translations once globally
+            (async () => {
+            await loadTranslations();
+            applyTranslations(); // global pass for static UI
+            })();
 
             // Emit appReady event for page-specific scripts
             window.dispatchEvent(new Event('appReady'));

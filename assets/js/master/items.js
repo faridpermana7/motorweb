@@ -4,6 +4,7 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let itemsTable; // declare at top of file 
@@ -76,39 +77,28 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
     });
 
     function displayDatatables() {  
-        const columns = [
-            { data: "id" },
-            { data: "code" },
-            { data: "name" },
-            { data: "barcode" },
-            { data: "category_name" }, 
-            { data: "brand" },
-            { data: "description" },
-            { data: "uom_name" }, 
-            { data: "minimum_stock" },
-            { data: "stock" },
+        const columns = [ 
+            { data: "code", title: '<span data-phrase="Code">Code</span>' },
+            { data: "name", title: '<span data-phrase="Name">Name</span>' },
+            { data: "barcode", title: '<span data-phrase="Barcode">Barcode</span>' },
+            { data: "category_name", title: '<span data-phrase="Category">Category</span>' },
+            { data: "brand", title: '<span data-phrase="Brand">Brand</span>' },
+            { data: "description", title: '<span data-phrase="Description">Description</span>' },
+            { data: "uom_name", title: '<span data-phrase="UOM">UOM</span>' },
+            { data: "minimum_stock", title: '<span data-phrase="Minimum Stock">Minimum Stock</span>' },
+            { data: "stock", title: '<span data-phrase="Stock">Stock</span>' },
             {
-            data: "cost_price",
-            render: data => formatCurrency(data),
-            className: "dt-right"
+                data: "cost_price",
+                title: '<span data-phrase="Cost Price">Cost Price</span>',
+                render: data => formatCurrency(data),
+                className: "dt-right"
             },
             {
-            data: "selling_price",
-            render: data => formatCurrency(data),
-            className: "dt-right"
-            },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+                data: "selling_price",
+                title: '<span data-phrase="Selling Price">Selling Price</span>',
+                render: data => formatCurrency(data),
+                className: "dt-right"
+            }, 
         ];
 
         itemsTable = initDataTable({
@@ -187,13 +177,22 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             $("#editSellingPrice").val(formatCurrency(rowData.selling_price));
         }
 
-        $("#editTitle").text(state === "add" ? "Add Item" : "Edit Item");
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Item">Item</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 
     const openImportModal = () => { 
         $("#importModal").modal("show");
     }; 
+    const openDeleteModal = id => {
+        $("#deleteId").val(id);
+        $("#deleteModal").modal("show");
+    };
 
     const handleEditSubmit = async e => {
         e.preventDefault();

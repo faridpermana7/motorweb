@@ -24,7 +24,7 @@
     Cashier | Motor Systems
   </title>
   <!-- Bootstrap application loader - loads all common CSS and JS -->
-  <script src="../assets/js/bootstrap.js?v=1.0"></script> 
+  <script type="module" src="../assets/js/bootstrap.js?v=1.0"></script> 
 </head>
 
 <body class="g-sidenav-show  bg-gray-100"> 
@@ -37,23 +37,23 @@
       <div class="container-fluid py-1 px-3">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Cashier</li>
+            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;" data-phrase="Pages">Pages</a></li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page" data-phrase="Cashier">Cashier</li>
           </ol>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group input-group-outline">
-              <label class="form-label">Type here...</label>
+              <label class="form-label" data-phrase="Type here">Type here...</label>
               <input type="text" class="form-control">
             </div>
           </div>
           <ul class="navbar-nav d-flex align-items-center  justify-content-end">
             <li class="nav-item d-flex align-items-center">
-              <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="https://www.creative-tim.com/builder?ref=navbar-material-dashboard">Online Builder</a>
+              <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="https://www.creative-tim.com/builder?ref=navbar-material-dashboard" data-phrase="Online Builder">Online Builder</a>
             </li>
             <li class="mt-1">
-              <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
+              <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub" data-phrase="Star">Star</a>
             </li>
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
@@ -71,7 +71,7 @@
             </li>
             <li class="nav-item dropdown pe-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="material-symbols-rounded">notifications</i>
+                <i class="material-symbols-rounded" data-phrase="Notifications">notifications</i>
               </a>
               <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
                 <li class="mb-2">
@@ -130,7 +130,7 @@
                       </div>
                       <div class="d-flex flex-column justify-content-center">
                         <h6 class="text-sm font-weight-normal mb-1">
-                          Payment successfully completed
+                          <span data-phrase="Payment successfully completed">Payment successfully completed</span>
                         </h6>
                         <p class="text-xs text-secondary mb-0">
                           <i class="fa fa-clock me-1"></i>
@@ -156,8 +156,8 @@
       <div class="row mb-2">
         <div class="col-12 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
           <div>
-            <h4 class="mb-1">Cashier</h4>
-            <p class="text-sm text-secondary mb-0">Create sales quickly with products, barcode entry and checkout controls.</p>
+            <h4 class="mb-1" data-phrase="Cashier">Cashier</h4>
+            <p class="text-sm text-secondary mb-0" data-phrase="CashierDescription">Create sales quickly with products, barcode entry and checkout controls.</p>
           </div>
           <!-- <div class="alert alert-danger rounded-pill mb-0 py-2 px-3 d-flex align-items-center gap-2" role="alert">
             <i class="material-symbols-rounded">error</i>
@@ -176,7 +176,7 @@
               <button class="btn btn-sm btn-success" id="newSaleButton"><i class="material-symbols-rounded">add</i></button>
             </div> -->
             <div class="mb-3">
-              <label class="form-label text-sm">Customer</label> 
+              <label class="form-label text-sm" data-phrase="Customer">Customer</label> 
               <div class="input-group">
                 <select class="form-select" id="customerSelect">
                   <!-- <option value="walk-in">Walk in customer</option>
@@ -188,14 +188,14 @@
                 </button>
               </div> 
               <div class="mb-3" hidden>
-                <label for="editCustomerId" class="form-label" >Customer ID</label>
+                <label for="editCustomerId" class="form-label" data-phrase="Customer ID">Customer ID</label>
                 <input type="text" id="editCustomerId" class="form-control" readonly>
               </div>
             </div>
             <div class="mb-4">
-              <label class="form-label text-sm">Scan barcode</label>
+              <label class="form-label text-sm" data-phrase="Scan barcode">Scan barcode</label>
               <div class="input-group">
-                <input id="barcodeInput" type="text" class="form-control" placeholder="Scan barcode or type the number then hit enter" autofocus>
+                <input id="barcodeInput" type="text" class="form-control" placeholder="Scan barcode or type the number then hit enter" autofocus data-phrase="Scan barcode description">
                 <button class="btn btn-success" id="barcodeAddButton"><i class="material-symbols-rounded">check</i></button>
               </div>
             </div>
@@ -205,9 +205,9 @@
                   <thead>
                     <tr>
                       <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">#</th>
-                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Item</th>
-                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Qty</th>
-                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-end">Price</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" data-phrase="Item">Item</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" data-phrase="Quantity">Qty</th>
+                      <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 text-end" data-phrase="Price">Price</th>
                       <th class="text-secondary"></th>
                     </tr>
                   </thead>
@@ -219,11 +219,11 @@
               <div class="col-md-6"> 
                 <!-- Totals -->
                 <div class="row mb-2">
-                  <div class="col-6 text-secondary">Total item(s)</div>
+                  <div class="col-6 text-secondary" data-phrase="Total items">Total item(s)</div>
                   <div class="col-6 text-start fw-bold" id="cartItemsCount">0</div>
                 </div>
                 <div class="row mb-3">
-                  <div class="col-6 text-secondary">Discount</div>
+                  <div class="col-6 text-secondary" data-phrase="Discount">Discount</div>
                   <div class="col-6">
                     <input id="discountInput" type="text"
                           class="form-control form-control-sm text-start"
@@ -233,14 +233,14 @@
               </div>
               <div class="col-md-6"> 
                 <div class="row mb-2">
-                  <div class="col-6 text-secondary">Sub Total</div>
+                  <div class="col-6 text-secondary" data-phrase="Sub Total">Sub Total</div>
                   <div class="col-6 text-end fw-bold" id="cartGrossPrice">IDR 0</div>
-                  <div class="col-6 text-secondary text-sm">Tax</div> 
+                  <div class="col-6 text-secondary text-sm" data-phrase="Tax">Tax</div> 
                   <div class="col-6 text-end fw-bold" id="cartTaxAmount">IDR 0</div>  
                 </div>
                 <!-- Payable -->
                 <div class="row border-top pt-3 mb-3">
-                  <div class="col-6 text-secondary text-sm">Total</div>
+                  <div class="col-6 text-secondary text-sm" data-phrase="Total">Total</div>
                   <div class="col-6 text-end">
                     <h4 class="mb-0 fw-bold text-dark" id="cartTotalPrice">IDR 0</h4> 
                   </div>
@@ -249,7 +249,7 @@
                       <div class="col-8">  
                         <div class="form-check pl-0">
                           <input class="form-check-input" type="checkbox" id="includeTaxCheckbox">
-                          <label class="form-check-label text-secondary text-sm" for="includeTaxCheckbox">
+                          <label class="form-check-label text-secondary text-sm" for="includeTaxCheckbox" data-phrase="Include tax">
                             Include tax
                           </label> 
                         </div>
@@ -269,13 +269,13 @@
                 <i class="material-symbols-rounded">print</i> Print
               </button> -->
               <button class="btn btn-danger w-100" id="cancelSaleButton">
-                <i class="material-symbols-rounded">close</i> Cancel
+                <i class="material-symbols-rounded">close</i> <span data-phrase="Cancel">Cancel</span>
               </button>
               <!-- <button class="btn btn-warning w-100" id="holdSaleButton">
                 <i class="material-symbols-rounded">pause</i> Hold
               </button> -->
               <button class="btn btn-success w-100" id="paySaleButton">
-                <i class="material-symbols-rounded">payments</i> Pay
+                <i class="material-symbols-rounded">payments</i> <span data-phrase="Pay">Pay</span>
               </button>
             </div>
           </div>
@@ -286,7 +286,7 @@
           <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-1">
             <div class="input-group flex-fill">
               <span class="input-group-text bg-white"><i class="material-symbols-rounded">search</i></span>
-              <input id="productSearch" type="text" class="form-control" placeholder="Search product by name or sku">
+              <input id="productSearch" type="text" class="form-control" placeholder="Search product by name or sku" data-phrase="Search product">
             </div>
             <select class="form-select" id="productCategory">
               <option value="all">All categories</option>
@@ -318,11 +318,11 @@
           <!-- Parent toggle -->
           <div class="mb-3 form-check">
             <input type="checkbox" id="isPrint" class="form-check-input">
-            <label for="isPrint" class="form-check-label">Print</label>
+            <label for="isPrint" class="form-check-label" data-phrase="Print">Print</label>
           </div>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel">Cancel</button>
           <button type="button" class="btn btn-primary" id="confirmPrintBtn">
-            <i class="material-symbols-rounded me-1" style="vertical-align:middle; font-size:18px;">payments</i> Pay
+            <i class="material-symbols-rounded me-1" style="vertical-align:middle; font-size:18px;">payments</i> <span data-phrase="Pay">Pay</span>
           </button>
         </div>
       </div>

@@ -4,7 +4,9 @@ import { API_BASE_URL, configReady } from '../config.js';
 const BASE_PATH = window.location.origin + "/";
 
 function renderMenu(menuItems, basePath) {
-  return menuItems.map(item => {
+  return menuItems
+  .sort((a, b) => a.sort_order - b.sort_order)
+  .map(item => {
     if (item.children && item.children.length > 0) {
       // Parent menu with collapsible children
       const collapseId = `${item.label.replace(/\s+/g, '')}Examples`;
@@ -12,7 +14,7 @@ function renderMenu(menuItems, basePath) {
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#${collapseId}" class="nav-link text-dark" aria-controls="${collapseId}" role="button" aria-expanded="false">
             <i class="material-symbols-rounded opacity-5">${item.icon || 'menu'}</i>
-            <span class="nav-link-text ms-1 ps-1">${item.label}</span>
+            <span class="nav-link-text ms-1 ps-1" data-phrase="${item.label}">${item.label}</span>
           </a>
           <div class="collapse" id="${collapseId}">
             <ul class="nav">
@@ -32,9 +34,9 @@ function renderMenu(menuItems, basePath) {
       // Leaf menu
       menuli += `
         <li class="nav-item">
-          <a class="nav-link text-dark" href="${basePath}${item.path}" ${item.id === 'logout-link' ? 'id="logout-link"' : ''}>
+          <a class="nav-link text-dark" href="${basePath}${item.path}" ${item.icon === 'logout' ? 'id="logout-link"' : ''}>
             <i class="material-symbols-rounded opacity-5">${item.icon || ''}</i>
-            <span class="nav-link-text ms-1">${item.label}</span>
+            <span class="nav-link-text ms-1" data-phrase="${item.label}">${item.label}</span>
           </a>
         </li>
       `;
@@ -80,23 +82,23 @@ function getTopNavbarHTML(pageTitle = '') {
       <div class="container-fluid py-1 px-3">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
-            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a></li>
-            <li class="breadcrumb-item text-sm text-dark active" aria-current="page">${title}</li>
+            <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;" data-phrase="Pages">Pages</a></li>
+            <li class="breadcrumb-item text-sm text-dark active" aria-current="page" data-phrase="${title}">${title}</li>
           </ol>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
           <div class="ms-md-auto pe-md-3 d-flex align-items-center">
             <div class="input-group input-group-outline">
-              <label class="form-label">Type here...</label>
+              <label class="form-label" data-phrase="Type here">Type here...</label>
               <input type="text" class="form-control">
             </div>
           </div>
           <ul class="navbar-nav d-flex align-items-center  justify-content-end">
             <li class="nav-item d-flex align-items-center">
-              <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="">Online Builder</a>
+              <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="" data-phrase="Online Builder">Online Builder</a>
             </li>
             <li class="mt-1">
-              <a class="github-button" href="" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
+              <a class="github-button" href="" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub" data-phrase="Star">Star</a>
             </li>
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
@@ -257,6 +259,7 @@ function attachLogoutHandler(sidenav) {
 
 function clearSessionAndRedirect() {
   localStorage.removeItem('access_token');
+  localStorage.removeItem('translations');
   window.location.href = `${BASE_PATH}pages/sign-in.html`;
 }
 

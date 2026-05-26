@@ -4,6 +4,7 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let customersTable; // declare at top of file 
@@ -42,24 +43,11 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
 
     function displayDatatables() {  
         const columns = [
-            { data: "id" },
-            { data: "name" },
-            { data: "type_name" }, 
-            { data: "phone" },
-            { data: "email" }, 
-            { data: "address" },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+            { data: "name", title: '<span data-phrase="Name">Customer Name</span>' }, 
+            { data: "type_name", title: '<span data-phrase="Type">Customer Type</span>' },
+            { data: "phone", title: '<span data-phrase="Phone">Phone</span>' },
+            { data: "email", title: '<span data-phrase="Email">Email</span>' },
+            { data: "address", title: '<span data-phrase="Address">Address</span>' },
         ];
 
         customersTable = initDataTable({
@@ -99,7 +87,7 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             $("#editEmail").val("");
             $("#editAddress").val("");
         }
-        else {
+        else { 
             $("#typeSelectContainer").hide();   // hide in Edit mode
             $("#typeTextContainer").show();   // show in Edit mode
 
@@ -110,9 +98,14 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             $("#editTypeName").val(rowData.type_name);
             $("#editEmail").val(rowData.email);
             $("#editAddress").val(rowData.address);
-        }
+        } 
 
-        $("#editTitle").text(state === "add" ? "Add Customer" : "Edit Customer");
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Customer">Customer</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 
@@ -183,6 +176,13 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
             console.error("Delete failed:", err);
         }
     };
+
+    
+    async function initUI() {
+        initCustomers();
+        // await loadTranslations();   // ✅ valid inside async
+        // applyTranslations(); 
+    }
     
     // Wait for bootstrap.js to finish loading all dependencies
     if (window.appReady !== undefined) {
@@ -190,6 +190,6 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
         initCustomers();
     } else {
         // Wait for appReady event from bootstrap.js
-        window.addEventListener('appReady', initCustomers, { once: true });
+        window.addEventListener('appReady', initUI, { once: true });
     } 
 })();

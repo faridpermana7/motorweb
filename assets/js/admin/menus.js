@@ -4,6 +4,7 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let menusTable; // declare at top of file 
@@ -63,26 +64,13 @@ import { formatDate } from '../utils/data-formater.js';
     }
 
     function displayDatatables() {  
-        const columns = [
-            { data: "id" },
-            { data: "parent_name" },
-            { data: "label" },
-            { data: "path" },
-            { data: "icon" },
-            { data: "is_active" },
-            { data: "sort_order" },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+        const columns = [  
+            { data: "parent_name", title: '<span data-phrase="Name">Parent Name</span>' },
+            { data: "label", title: '<span data-phrase="Label">Label</span>' },
+            { data: "path", title: '<span data-phrase="Path">Path</span>' },
+            { data: "icon", title: '<span data-phrase="Icon">Icon</span>' },
+            { data: "is_active", title: '<span data-phrase="Is Active">Is Active</span>' },
+            { data: "sort_order", title: '<span data-phrase="Sort Order">Sort Order</span>' }
         ];
 
         menusTable = initDataTable({
@@ -122,9 +110,7 @@ import { formatDate } from '../utils/data-formater.js';
 
 
     const openEditModal = (state, rowData) => {
-        if(state === 'add') {
-
-            $("#editTitle").text('Add Menu');
+        if(state === 'add') { 
             $("#editId").val('');
             $("#editLabel").val('');
             $("#editPath").val('');
@@ -133,8 +119,7 @@ import { formatDate } from '../utils/data-formater.js';
             $("#editSortOrder").val(0); 
             // $("#editParentName").val("");
             $("#editParentId").val(0);  
-        }else{ 
-            $("#editTitle").text('Edit Menu');
+        }else{  
             $("#editId").val(rowData.id);
             $("#editLabel").val(rowData.label);
             $("#editPath").val(rowData.path);
@@ -153,6 +138,13 @@ import { formatDate } from '../utils/data-formater.js';
             $("#hasParent").prop("checked", false);
             hasParentToggle(false); 
         }
+        
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Menu">Menu</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 

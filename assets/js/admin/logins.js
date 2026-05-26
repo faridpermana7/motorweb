@@ -4,6 +4,7 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let loginsTable; // declare at top of file 
@@ -40,16 +41,17 @@ import { formatDate } from '../utils/data-formater.js';
     });
 
     function displayDatatables() {  
-        const columns = [
-            { data: "id" },
-            { data: "user.username" },
+        const columns = [ 
+            { data: "user.username", title: '<span data-phrase="Username">Username</span>' },
             {
                 data: "time",
+                title: '<span data-phrase="Time">Time</span>',
                 render: data => formatDate(data),
                 className: "dt-right"
             },
             {
                 data: "is_login",
+                title: '<span data-phrase="Status">Status</span>',
                 render: function (data) {
                     if (data) {
                     return '<span class="badge bg-success">Login</span>';
@@ -59,21 +61,9 @@ import { formatDate } from '../utils/data-formater.js';
                 },
                 className: "dt-center"
             },
-            { data: "ip_address" },
-            { data: "user_agent" },
-            { data: "location" },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+            { data: "ip_address", title: '<span data-phrase="IP Address">IP Address</span>' },
+            { data: "user_agent", title: '<span data-phrase="User Agent">User Agent</span>' },
+            { data: "location", title: '<span data-phrase="Location">Location</span>' },
         ];
 
         loginsTable = initDataTable({
@@ -153,7 +143,12 @@ import { formatDate } from '../utils/data-formater.js';
             $("#editLocation").val(rowData.location);
         }
 
-        $("#editTitle").text(state === "add" ? "Add Login" : "Edit Login");
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Logins">Logins</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 

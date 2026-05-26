@@ -3,6 +3,7 @@ import { API_BASE_URL, configReady } from './config.js';
 import { apiFetch } from './utils/api.js';
 import { loadNavMenu } from './utils/nav.js';
 import { formatDate, formatCurrency, unformatCurrency } from './utils/data-formater.js';
+import { applyTranslations } from './utils/translations.js';
 
 (function() {
   // #region Declaration of variables and constants
@@ -201,7 +202,8 @@ import { formatDate, formatCurrency, unformatCurrency } from './utils/data-forma
                           <i class="material-symbols-rounded">camera_alt</i>
                           </div>
                           <h6 class="text-uppercase text-sm mb-1 fw-bold">${product.name}</h6>
-                          <p class="text-secondary text-xs mb-2">Barcode: ${product.barcode} | Stock ${product.stock}</p>
+                          <p class="text-secondary text-xs mb-2" data-phrase="Barcode">Barcode: ${product.barcode}</p>
+                          <p class="text-secondary text-xs mb-2" data-phrase="Stock">Stock: ${product.stock}</p>
                           <div class="text-success fw-bold">${formatCurrency(product.price)}</div>
                       </div>
                       </div>

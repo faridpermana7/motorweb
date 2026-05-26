@@ -1,4 +1,6 @@
-import { apiFetch } from "./api.js"; 
+import { apiFetch } from "./api.js";  
+import { formatDate } from '../utils/data-formater.js';  
+import { applyTranslations } from '../utils/translations.js';
 
 export function initDataTable({ tableId, url, columns, moduleName, disableAdd = false,
   onAdd, onEdit, onDelete, onSubmit, onConfirmDelete, enableImport = false, onImport, onImportConfirm }) { 
@@ -13,13 +15,34 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
         });
     },
     columns: [
-      ...columns,
+      { data: "id", title: "ID" },
+      ...columns, 
+      {
+          data: "created_at",
+          title: '<span data-phrase="Created At">Created At</span>',
+          render: data => formatDate(data),
+          className: "dt-right"
+      },
+      { data: "created_by", title: '<span data-phrase="Created By">Created By</span>' },
+      {
+          data: "updated_at",
+          title: '<span data-phrase="Updated At">Updated At</span>',
+          render: data => formatDate(data),
+          className: "dt-right"
+      },
+      { data: "updated_by", title: '<span data-phrase="Updated By">Updated By</span>' },
       {
         data: null,
-        render: (data, type, row) => `
-          <button class="btn btn-sm btn-dark edit-btn" data-id="${row.id}">Edit</button>
-          <button class="btn btn-sm btn-light delete-btn" data-id="${row.id}">Delete</button>
-        `,
+        title: '<span data-phrase="Actions">Actions</span>',
+        render: (data, type, row) => {
+          if (type === 'display') {
+            return `
+              <button class="btn btn-sm btn-dark edit-btn" data-id="${row.id}" data-phrase="Edit">Edit</button>
+              <button class="btn btn-sm btn-light delete-btn" data-id="${row.id}" data-phrase="Delete">Delete</button>
+            `;
+          }
+          return data; // fallback for sort/filter
+        },
         orderable: false,
         searchable: false
       }
@@ -29,27 +52,43 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
     scrollX: true,
     paging: true,
     autoWidth: false,
+    drawCallback: function () {
+      // Scoped translation: only inside this table
+      applyTranslations(document.querySelector(tableId));
+    },
     initComplete: function () { 
       let buttonsHtml = ""; 
       if (!disableAdd) {
         buttonsHtml += `
           <button class="btn btn-sm btn-dark add-btn ms-2">
-            Add ${moduleName}
+            <span data-phrase="Add">Add</span> 
+            <span data-phrase="${moduleName}">${moduleName}</span>
           </button>`;
       }
 
       if (enableImport) {
         buttonsHtml += `
           <button class="btn btn-sm btn-primary import-btn ms-2">
-            Import ${moduleName}
+            <span data-phrase="Import">Import</span> 
+            <span data-phrase="${moduleName}">${moduleName}</span>
           </button>`;
+      } 
+
+      if (buttonsHtml) {  
+        $(`${tableId}_filter`).prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
+        applyTranslations(document.querySelector(`${tableId}_filter`)); // scoped translation for filter area (buttons and search label)
       }
 
-      if (buttonsHtml) {
-        $(`${tableId}_filter`).prepend(
-          `<div class="add-datatables">${buttonsHtml}</div>`
-        );
-      }
+
+      // Mark DataTables UI elements with data-phrase
+      // $(`${tableId}_filter label`).attr('data-phrase', 'Search'); 
+      // $(`${tableId}_filter input[type="search"]`).attr('placeholder', ''); // optional
+      // // $(`#${tableId}_length label`).attr('data-phrase', 'Show entries');
+      // // $(`#${tableId}_info`).attr('data-phrase', 'Showing entries');
+      // $(`${tableId}_paginate .previous`).attr('data-phrase', 'Previous');
+      // $(`${tableId}_paginate .next`).attr('data-phrase', 'Next');
+
+      // Load translations and apply them AFTER DataTables is ready
     }
   }); 
 

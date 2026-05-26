@@ -4,27 +4,15 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let usersTable; // declare at top of file 
 
     function displayDatatables() {  
         const columns = [
-            { data: "id" },
-            { data: "username" },
-            { data: "email" },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+            { data: "username", title: '<span data-phrase="Username">Username</span>' },
+            { data: "email", title: '<span data-phrase="Email">Email</span>' }
         ];
 
         usersTable = initDataTable({
@@ -64,19 +52,24 @@ import { formatDate } from '../utils/data-formater.js';
 
 
     const openEditModal = (state, rowData) => {
-        if(state === 'add') {
-            $("#editTitle").text('Add User');
+        if(state === 'add') { 
             $("#editId").val('');
             $("#editUsername").val('');
             $("#editEmail").val('');
             $("#editPassword").val('');
-        }else{
-            $("#editTitle").text('Edit User');
+        }else{ 
             $("#editId").val(rowData.id);
             $("#editUsername").val(rowData.username);
             $("#editEmail").val(rowData.email);
             // $("#editPassword").val(rowData.password_hash); // we don't want to pre-fill the password field with the hash, so we leave it blank
         }
+        
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="User">User</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 

@@ -4,6 +4,7 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-formater.js';  
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     // #region variables and constants
@@ -137,38 +138,42 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
 
     // #region datatables
     function displayDatatables() {  
-        const columns = [
-            { data: "id" },
-            { data: "customer_name" },
-            { data: "payment_method" }, 
+        const columns = [ 
+            { data: "customer_name", title: '<span data-phrase="Customer Name">Customer Name</span>' },
+            { data: "payment_method", title : '<span data-phrase="Payment Method">Payment Method</span>' }, 
             {
                 data: "discount",
+                title: "Discount",
                 render: data => formatCurrency(data),
                 className: "dt-right"
             }, 
-            { data: "tax_name",className: "dt-center" }, 
+            { data: "tax_name", title: '<span data-phrase="Tax">Tax</span>', className: "dt-center" }, 
             {
                 data: "tax_value",
+                title: '<span data-phrase="Tax Value">Tax Value</span>',
                 render: data => formatCurrency(data),
                 className: "dt-right"
             }, 
             {
                 data: "total",
+                    title: '<span data-phrase="Total">Total</span>',
                 render: data => formatCurrency(data),
                 className: "dt-right"
             },  
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+            // {
+            //     data: "created_at",
+            //     title: '<span data-phrase="Created At">Created At</span>',
+            //     render: data => formatDate(data),
+            //     className: "dt-right"
+            // },
+            // { data: "created_by", title: '<span data-phrase="Created By">Created By</span>' },
+            // {
+            //     data: "updated_at",
+            //     title: '<span data-phrase="Updated At">Updated At</span>',
+            //     render: data => formatDate(data),
+            //     className: "dt-right"
+            // },
+            // { data: "updated_by", title: '<span data-phrase="Updated By">Updated By</span>' }
         ];
 
         transactionsTable = initDataTable({
@@ -338,7 +343,12 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
 
         }
 
-        $("#editTitle").text(mode === "add" ? "Add Transaction" : "Edit Transaction");
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Customer">Customer</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal")); 
         $("#editModal").modal("show");
     };
 
@@ -531,14 +541,18 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
                 renderCart(); 
             }
         });
+    } 
+
+    async function initUI() {
+        initTransactions(); 
     }
       
     // Wait for bootstrap.js to finish loading all dependencies
     if (window.appReady !== undefined) {
         // bootstrap.js already fired appReady event
-        initTransactions();
+        initUI();
     } else {
         // Wait for appReady event from bootstrap.js
-        window.addEventListener('appReady', initTransactions, { once: true });
+        window.addEventListener('appReady', initUI, { once: true });
     } 
 })();

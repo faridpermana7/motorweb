@@ -4,28 +4,16 @@ import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate } from '../utils/data-formater.js';
+import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let enumTable; // declare at top of file  
 
     function displayDatatables() {  
         const columns = [
-            { data: "id" }, 
-            { data: "name" },
-            { data: "type" },
-            { data: "description" },
-            {
-            data: "created_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "created_by" },
-            {
-            data: "updated_at",
-            render: data => formatDate(data),
-            className: "dt-right"
-            },
-            { data: "updated_by" }
+            { data: "name", title: '<span data-phrase="Name">Name</span>' },
+            { data: "type", title: '<span data-phrase="Type">Type</span>' },
+            { data: "description", title: '<span data-phrase="Description">Description</span>' },
         ];
 
         enumTable = initDataTable({
@@ -67,7 +55,12 @@ import { formatDate } from '../utils/data-formater.js';
             $("#editDescription").val(rowData.description);
         }
 
-        $("#editTitle").text(state === "add" ? "Add Enum Table" : "Edit Enum Table");
+        $("#editTitle").html(`
+            <span data-phrase="${state === "add" ? "Add" : "Edit"}">${state === "add" ? "Add" : "Edit"}</span>
+            <span data-phrase="Enum Table">Enum Table</span>
+        `);
+        // Scoped translation: only modal DOM
+        applyTranslations(document.getElementById("editModal"));
         $("#editModal").modal("show");
     };
 
