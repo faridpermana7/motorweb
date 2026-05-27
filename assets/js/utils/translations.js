@@ -10,6 +10,14 @@ export async function loadTranslations() {
   
   try {
     
+    // Load configurations from localStorage
+    const configs = JSON.parse(localStorage.getItem("configurations") || "{}");
+
+    // Only proceed if Application_language_indonesia is true
+    if (configs["Application_language_indonesia"] !== "true") {
+      console.log("Skipping translations: Application_language_indonesia is not enabled");
+      return;
+    }
     // First check localStorage
     const cached = localStorage.getItem("translations");
     if (cached) {
@@ -26,7 +34,6 @@ export async function loadTranslations() {
       acc[row.phrase] = row.translation;
       return acc;
     }, {});
-
     // Save to localStorage
     localStorage.setItem("translations", JSON.stringify(translations));
   } catch (err) {
