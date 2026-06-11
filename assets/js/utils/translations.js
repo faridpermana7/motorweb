@@ -1,114 +1,101 @@
 // Navigation menu utility, This file contains the shared navigation menu HTML and insertion logic
 import { API_BASE_URL, configReady } from '../config.js';
 import { apiFetch } from './api.js';
-
 let translations = {};
 
+// Load translations (normalizes keys to lowercase)
 export async function loadTranslations() {
+  await configReady;
 
-  await configReady; // Ensure config is loaded before fetching translations
-  
   try {
-    
-    // Load configurations from localStorage
     const configs = JSON.parse(localStorage.getItem("configurations") || "{}");
-
-    // Only proceed if Application_language_indonesia is true
     if (configs["Application_language_indonesia"] !== "true") {
       console.log("Skipping translations: Application_language_indonesia is not enabled");
       return;
     }
-    // First check localStorage
+
     const cached = localStorage.getItem("translations");
     if (cached) {
-      translations = JSON.parse(cached);
+      // cached should already be normalized, but normalize again to be safe
+      const parsed = JSON.parse(cached);
+      translations = Object.keys(parsed).reduce((acc, k) => {
+        acc[k.toLowerCase().trim()] = parsed[k];
+        return acc;
+      }, {});
       console.log("Translations loaded from localStorage:", translations);
       return;
     }
 
-    // If not cached, fetch from API
     const data = await apiFetch(`${API_BASE_URL}/phrases`);
     console.log("Translations loaded from API:", data);
 
+    // Normalize phrase keys to lowercase + trim
     translations = data.reduce((acc, row) => {
-      acc[row.phrase] = row.translation;
+      const phraseKey = (row.phrase || "").toString().toLowerCase().trim();
+      acc[phraseKey] = row.translation;
       return acc;
     }, {});
-    // Save to localStorage
+
     localStorage.setItem("translations", JSON.stringify(translations));
   } catch (err) {
     console.error('Failed to load translations:', err);
   }
-  
 }
 
-export function t(phaseKey) {
-  return translations[phaseKey] || phaseKey; //fallback to key if translation not found
+// Lookup helper: case-insensitive, trims whitespace
+export function t(phraseKey) {
+  if (!phraseKey && phraseKey !== "") return phraseKey;
+  const lookup = phraseKey.toString().toLowerCase().trim();
+  return translations[lookup] || phraseKey;
 }
 
 // Apply translations to DOM elements (scoped)
 export function applyTranslations(scope = document) {
+  if (!scope) {
+    console.warn('applyTranslations called with null or undefined scope — skipping translations.', {
+      scope,
+      stack: (new Error()).stack
+    });
+    return;
+  }
+
+  if (typeof scope.querySelectorAll !== 'function') {
+    console.warn('applyTranslations: scope does not support querySelectorAll — skipping.', {
+      scope,
+      type: Object.prototype.toString.call(scope),
+      stack: (new Error()).stack
+    });
+    return;
+  }
+
   scope.querySelectorAll("[data-phrase]").forEach(el => {
-    const key = el.getAttribute("data-phrase");
-    const translated = t(key);
+    const rawKey = el.getAttribute("data-phrase");
+    if (!rawKey) return;
+
+    // Normalize the key for lookup but keep rawKey for fallback if needed
+    const normalizedKey = rawKey.toString().toLowerCase().trim();
+    const translated = t(normalizedKey);
 
     // Handle placeholder attribute
     if (el.hasAttribute("placeholder")) {
-      el.setAttribute("placeholder", translated || key);
+      el.setAttribute("placeholder", translated || rawKey);
       return;
     }
-    
+
     // If element has no text nodes, inject translation or fallback
     const hasTextNode = Array.from(el.childNodes).some(
       node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== ""
     );
 
     if (!hasTextNode) {
-      el.textContent = translated; // fallback to translation or key
+      el.textContent = translated || rawKey;
     } else {
       // Replace existing text nodes only
       el.childNodes.forEach(node => {
         if (node.nodeType === Node.TEXT_NODE) {
-          node.nodeValue = translated;
+          node.nodeValue = translated || rawKey;
         }
       });
     }
   });
 }
-
-// export function applyTranslations() {
-//   document.querySelectorAll('[data-phrase]').forEach(el => {
-//     const key = el.getAttribute('data-phrase');
-//     const translated = t(key);
-
-//     // Replace only text nodes, keep child elements intact
-//     el.childNodes.forEach(node => {
-//       if (node.nodeType === Node.TEXT_NODE) {
-//         node.nodeValue = translated;
-//       }
-//     });
-//   });
-// }
-
-
-// export function applyTranslations() {
-//   // Translate visible headers
-//   document.querySelectorAll('.dataTables_scrollHead [data-phrase]').forEach(el => {
-//     const key = el.getAttribute('data-phrase');
-//     const translated = t(key);
-//     el.childNodes.forEach(node => {
-//       if (node.nodeType === Node.TEXT_NODE) node.nodeValue = translated;
-//     });
-//   });
-
-//   // Translate filter, paginate, info, etc.
-//   document.querySelectorAll(
-//     '#transactionsTable_filter [data-phrase], #transactionsTable_length [data-phrase], #transactionsTable_info[data-phrase], #transactionsTable_paginate [data-phrase]'
-//   ).forEach(el => {
-//     const key = el.getAttribute('data-phrase');
-//     const translated = t(key);
-//     el.childNodes.forEach(node => {
-//       if (node.nodeType === Node.TEXT_NODE) node.nodeValue = translated;
-//     });
-//   });
-// }

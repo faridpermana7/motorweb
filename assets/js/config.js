@@ -30,8 +30,8 @@ export const configReady = fetch(new URL('./config.json', import.meta.url))
     
     const cached = localStorage.getItem("configurations");
     if (cached) {
-      configurations = JSON.parse(cached);
-      console.log("Configurations loaded from localStorage:", configurations);
+      var conf = JSON.parse(cached);
+      console.log("Configurations loaded from localStorage:", conf);
       return;
     }
 

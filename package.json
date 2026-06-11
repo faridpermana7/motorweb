@@ -41,7 +41,14 @@
   },
   "homepage": "https://creative-tim.com/product/material-dashboard",
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "datatables.net": "^2.3.8",
+    "datatables.net-dt": "^2.3.8",
+    "font-awesome": "^4.7.0",
+    "github-buttons": "^2.32.0",
+    "jquery": "^4.0.0",
     "material-dashboard": "^3.0.9",
+    "material-symbols": "^0.44.12",
     "select2": "^4.1.0-rc.0"
   }
 }

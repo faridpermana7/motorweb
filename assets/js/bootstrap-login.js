@@ -1,7 +1,6 @@
 // Bootstrap application - loads all common CSS and JavaScript dependencies
 // This file is loaded first in every page to ensure all dependencies are available
 
-import { loadTranslations, applyTranslations } from './utils/translations.js';
 (function() {
     // Detect base path based on script location
     function getBasePath() {
@@ -111,74 +110,24 @@ import { loadTranslations, applyTranslations } from './utils/translations.js';
             // 'https://buttons.github.io/buttons.js'
         ];
 
-        // const allScripts = [...coreScripts, ...utilityScripts, ...dashboardScripts];// keep dashboardScripts separate and do NOT include it in allScripts
-        const allScripts = [...coreScripts, ...utilityScripts]; // dashboardScripts excluded
+        const allScripts = [...coreScripts, ...utilityScripts, ...dashboardScripts];
 
-        // 1) Load core + utility scripts first (perfect-scrollbar will be loaded here)
         loadScripts(allScripts).then(() => {
-        // At this point perfect-scrollbar.min.js has been executed and window.PerfectScrollbar exists (real constructor)
-
-        // 2) Wrap the real PerfectScrollbar with a safe guard so calls with null don't throw
-        if (window.PerfectScrollbar) {
-            const RealPerfectScrollbar = window.PerfectScrollbar;
-            // Only wrap once
-            if (!RealPerfectScrollbar.__wrappedByBootstrap) {
-            const safePS = function(element, options) {
-                if (!element || !element.nodeName) {
-                // skip silently (or log)
-                // console.warn('PerfectScrollbar skipped: no valid element');
-                return;
-                }
-                return new RealPerfectScrollbar(element, options);
-            };
-            // preserve reference to real constructor if needed later
-            safePS.__real = RealPerfectScrollbar;
-            safePS.__wrappedByBootstrap = true;
-            // replace global constructor with the safe wrapper
-            window.PerfectScrollbar = safePS;
-            }
-        } else {
-            // If perfect-scrollbar failed to load for some reason, create a no-op stub
-            if (!window.PerfectScrollbar) {
-            window.PerfectScrollbar = function() {
-                // no-op stub to satisfy material-dashboard
-            };
-            }
-        }
-
-        // 3) Optionally perform your own guarded initializations (if you want)
-        const mainPanel = document.querySelector('.main-panel');
-        if (mainPanel) new window.PerfectScrollbar(mainPanel);
-
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar) new window.PerfectScrollbar(sidebar);
-
-            // 4) Now load the dashboard script(s) safely — it will call window.PerfectScrollbar,
-            //     but the wrapper prevents throws on null elements
-            loadScripts(dashboardScripts).then(() => {
-                // Mark that app is ready
-                window.appReady = true;
-
-                // Load external scripts asynchronously (non-blocking)
-                externalScripts.forEach(src => {
+            // Mark that app is ready
+            window.appReady = true;
+            
+            // Load external scripts asynchronously (non-blocking)
+            externalScripts.forEach(src => {
                 const script = document.createElement('script');
                 script.src = src;
                 script.async = true;
                 script.defer = true;
                 document.head.appendChild(script);
-                });
+            }); 
 
-                // Load translations once globally
-                (async () => {
-                await loadTranslations();
-                applyTranslations(); // global pass for static UI
-                })();
-
-                // Emit appReady event for page-specific scripts
-                window.dispatchEvent(new Event('appReady'));
-            });
+            // Emit appReady event for page-specific scripts
+            window.dispatchEvent(new Event('appReady'));
         });
-
     }
 
     // Start loading when DOM is ready

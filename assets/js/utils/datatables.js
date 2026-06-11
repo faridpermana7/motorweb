@@ -75,8 +75,31 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
       } 
 
       if (buttonsHtml) {  
-        $(`${tableId}_filter`).prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
-        applyTranslations(document.querySelector(`${tableId}_filter`)); // scoped translation for filter area (buttons and search label)
+        // Build a single selector string once. Ensure tableId includes the leading '#' if needed.
+        // Example: tableId = '#transactionsTable' -> filterSelector = '#transactionsTable_filter'
+        const filterSelector = `${tableId}_filter`;
+
+        // Use jQuery to prepend (same as before)
+        const $filter = $(filterSelector);
+        if ($filter.length) {
+          $filter.prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
+        } else {
+          // fallback: try alternative selector used by DataTables (in case tableId is an id without '#')
+          const altSelector = `${tableId} .dataTables_filter`;
+          const $alt = $(altSelector);
+          if ($alt.length) {
+            $alt.prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
+          } else {
+            // last resort: prepend to the table container
+            $(tableId).closest('.dataTables_wrapper').find('.dataTables_filter').prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
+          }
+        }
+
+        // Get the actual DOM element from jQuery (or fallback to document)
+        const filterEl = ($filter.length && $filter[0]) || $(filterSelector)[0] || document.querySelector(`${tableId}_filter`) || document.querySelector(`${tableId} .dataTables_filter`) || document;
+
+        // Defensive: if filterEl is still null, fall back to document to avoid passing null
+        applyTranslations(filterEl || document);
       }
 
 
