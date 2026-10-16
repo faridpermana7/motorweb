@@ -11,11 +11,16 @@ import { formatCurrency } from './utils/data-formater.js';
     totalSales: document.getElementById('totalSales'),
     totalUsers: document.getElementById('totalUsers'),
     totalAll: document.getElementById('totalAll'),
+    profitAll: document.getElementById('profitAll'),
+    topProductsTitle: document.getElementById('topProductsTitle'),
+    topProductsByRevenueTitle: document.getElementById('topProductsByRevenueTitle'),
     topProductsTableBody: document.getElementById('topProductsTableBody'),
     topProductsByRevenueTableBody: document.getElementById('topProductsByRevenueTableBody'),
     updatedDashboard1: document.getElementById('updatedDashboard1'),
     updatedDashboard2: document.getElementById('updatedDashboard2'),
     updatedDashboard3: document.getElementById('updatedDashboard3'),
+    salesMonths: document.getElementById('salesMonths'),
+    profitMonths: document.getElementById('profitMonths'),
     totalMonths: document.getElementById('totalMonths'),
   };
 
@@ -40,16 +45,24 @@ import { formatCurrency } from './utils/data-formater.js';
                     .map(Number) // convert each string to a number
                     .reduce((a, b) => a + b, 0)
                 );
+            ui.profitAll.textContent = formatCurrency(
+                response.month_profits
+                    .map(Number) // convert each string to a number
+                    .reduce((a, b) => a + b, 0)
+                );
             ui.totalMonths.textContent = `Last ${response.month_labels.length} months`;
-            // Populate Top 5 Products table
-            if (response.top_products_by_quantity && response.top_products_by_quantity.length > 0) {
-                populateTopProducts(response.top_products_by_quantity);
-            }
-
-            // Populate Top 5 Products by Revenue table
-            if (response.top_products_by_revenue && response.top_products_by_revenue.length > 0) {
-                populateTopProductsByRevenue(response.top_products_by_revenue);
-            }
+            ui.salesMonths.textContent = `Sales - ${response.month_labels.length} months`;
+            ui.profitMonths.textContent = `Profit - ${response.month_labels.length} months`;
+            const topProductsByQuantity = Array.isArray(response.top_products_by_quantity)
+                ? response.top_products_by_quantity
+                : [];
+            const topProductsByRevenue = Array.isArray(response.top_products_by_revenue)
+                ? response.top_products_by_revenue
+                : [];
+            ui.topProductsTitle.textContent = `Top ${topProductsByQuantity.length} Products`;
+            ui.topProductsByRevenueTitle.textContent = `Top ${topProductsByRevenue.length} Products by Revenue`;
+            populateTopProducts(topProductsByQuantity);
+            populateTopProductsByRevenue(topProductsByRevenue);
 
             // Chart 1: Bar
             const ctx = document.getElementById("chart-bars")?.getContext("2d");
@@ -153,8 +166,7 @@ import { formatCurrency } from './utils/data-formater.js';
         // Clear existing rows
         ui.topProductsTableBody.innerHTML = '';
 
-        // Add rows for each product (limit to top 5)
-        products.slice(0, 5).forEach(product => {
+        products.forEach(product => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="align-middle text-left text-sm">
@@ -167,6 +179,9 @@ import { formatCurrency } from './utils/data-formater.js';
                 <td class="align-middle text-right text-sm">
                     <p class="text-sm font-weight-bold mb-0">${formatCurrency(product.total_revenue)}</p>
                     <p class="text-xs text-secondary mb-0">Avg: ${formatCurrency(product.average_price)}</p>
+                </td>
+                <td class="align-middle text-right text-sm">
+                    <p class="text-sm font-weight-bold mb-0">${formatCurrency(product.net_profit)}</p>
                 </td>
             `;
             ui.topProductsTableBody.appendChild(row);
@@ -179,8 +194,7 @@ import { formatCurrency } from './utils/data-formater.js';
         // Clear existing rows
         ui.topProductsByRevenueTableBody.innerHTML = '';
 
-        // Add rows for each product (limit to top 5)
-        products.slice(0, 5).forEach(product => {
+        products.forEach(product => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="align-middle text-left text-sm">
@@ -193,6 +207,9 @@ import { formatCurrency } from './utils/data-formater.js';
                 <td class="align-middle text-right text-sm">
                     <p class="text-sm font-weight-bold mb-0">${formatCurrency(product.total_revenue)}</p>
                     <p class="text-xs text-secondary mb-0">Avg: ${formatCurrency(product.average_price)}</p>
+                </td>
+                <td class="align-middle text-right text-sm">
+                    <p class="text-sm font-weight-bold mb-0">${formatCurrency(product.net_profit)}</p> 
                 </td>
             `;
             ui.topProductsByRevenueTableBody.appendChild(row);

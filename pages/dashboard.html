@@ -148,7 +148,7 @@
         
         <div class="col-lg-8">
           <div class="row"> 
-            <div class="col-xl-6 col-sm-6 mb-xl-0 mb-4">
+            <div class="col-xl-4 col-sm-4 mb-xl-0 mb-4">
               <div class="card">
                 <div class="card-header p-2 ps-3">
                   <div class="d-flex justify-content-between">
@@ -163,13 +163,28 @@
                 </div>
               </div>
             </div> 
-            <div class="col-xl-6 col-sm-6 mb-xl-0 mb-4">
+            <div class="col-xl-4 col-sm-4 mb-xl-0 mb-4">
               <div class="card">
                 <div class="card-header p-2 ps-3">
                   <div class="d-flex justify-content-between">
                     <div>
-                      <p class="text-sm mb-0 text-capitalize" data-phrase="lastmonth">Total Last 6 Months</p>
+                      <p class="text-sm mb-0 text-capitalize" id="salesMonths"></p>
                       <h4 class="mb-0" id="totalAll">IDR 0</h4> 
+                    </div>
+                    <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                      <i class="material-symbols-rounded opacity-10">weekend</i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> 
+            <div class="col-xl-4 col-sm-4 mb-xl-0 mb-4">
+              <div class="card">
+                <div class="card-header p-2 ps-3">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <p class="text-sm mb-0 text-capitalize" id="profitMonths"></p>
+                      <h4 class="mb-0" id="profitAll">IDR 0</h4> 
                     </div>
                     <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
                       <i class="material-symbols-rounded opacity-10">weekend</i>
@@ -246,7 +261,7 @@
                 <div class="card-header pb-0">
                   <div class="row">
                     <div class="col-lg-6 col-7">
-                      <h6 data-phrase="top5products">Top 5 Products</h6>
+                      <h6 id="topProductsTitle">Top 5 Products by Quantity</h6>
                     </div>
                   </div>
                 </div>
@@ -258,6 +273,7 @@
                           <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="productname">Product Name</th>
                           <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="quantity">Quantity</th>
                           <th class="text-uppercase text-secondary text-right text-xxs font-weight-bolder opacity-7" data-phrase="revenue">Revenue</th>
+                          <th class="text-uppercase text-secondary text-right text-xxs font-weight-bolder opacity-7" data-phrase="profit">Profit</th>
                         </tr>
                       </thead>
                       <tbody id="topProductsTableBody">
@@ -275,7 +291,7 @@
                 <div class="card-header pb-0">
                   <div class="row">
                     <div class="col-lg-6 col-7">
-                      <h6 data-phrase="top5productsbyrevenue">Top 5 Products by Revenue</h6>
+                      <h6 id="topProductsByRevenueTitle">Top 5 Products by Revenue</h6>
                       <p class="text-sm mb-0" data-phrase="top5productsbyrevenue_desc">
                     </div>
                   </div>
@@ -288,6 +304,7 @@
                           <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="productname">Product Name</th>
                           <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="Quantity">Quantity</th>
                           <th class="text-uppercase text-secondary text-right text-xxs font-weight-bolder opacity-7" data-phrase="revenue">Revenue</th>
+                          <th class="text-uppercase text-secondary text-right text-xxs font-weight-bolder opacity-7" data-phrase="profit">Profit</th>
                         </tr>
                       </thead>
                       <tbody id="topProductsByRevenueTableBody">
