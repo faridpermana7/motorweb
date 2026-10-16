@@ -54,13 +54,19 @@ import { applyTranslations } from './utils/translations.js';
   }
 
   function populateCustomers(customerData) {
-      // customerSelect.innerHTML = '<option value="">-- Choose --</option>';
-      const option = document.createElement('option');
+      customerSelect.innerHTML = '<option value="">-- Choose --</option>';
       var defaultCustomer = customerData.find(c => c.name === 'Guest');
-      option.value = defaultCustomer.id;
-      option.textContent = defaultCustomer.name;
-      customerSelect.appendChild(option);
       $("#editCustomerId").val(defaultCustomer.id);   
+      
+    customerData.forEach(x => {
+        const option = document.createElement('option');
+        option.value = x.id;              // stays as customer_id
+        option.textContent = x.name + (x.type_name ? ` (${x.type_name})` : '');      // label shown to user
+        if (x.name === 'Guest') {
+          option.selected = true; // Set Guest as the default selected option
+        } 
+        customerSelect.appendChild(option);
+    });
   }
       
   // Handle type selection change

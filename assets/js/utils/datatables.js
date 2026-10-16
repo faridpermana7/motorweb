@@ -75,48 +75,28 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
       } 
 
       if (buttonsHtml) {  
-        // Build a single selector string once. Ensure tableId includes the leading '#' if needed.
-        // Example: tableId = '#transactionsTable' -> filterSelector = '#transactionsTable_filter'
-        const filterSelector = `${tableId}_filter`;
+        const container = table.table().container();
+        const searchControl = container.querySelector('.dt-search, .dataTables_filter');
+        const toolbarParent = searchControl?.parentElement
+          || container.querySelector('.dt-layout-row')
+          || container;
+        const toolbar = document.createElement('div');
+        toolbar.className = 'add-datatables d-flex align-items-center gap-2';
+        toolbar.innerHTML = buttonsHtml;
+        toolbarParent.prepend(toolbar);
 
-        // Use jQuery to prepend (same as before)
-        const $filter = $(filterSelector);
-        if ($filter.length) {
-          $filter.prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
-        } else {
-          // fallback: try alternative selector used by DataTables (in case tableId is an id without '#')
-          const altSelector = `${tableId} .dataTables_filter`;
-          const $alt = $(altSelector);
-          if ($alt.length) {
-            $alt.prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
-          } else {
-            // last resort: prepend to the table container
-            $(tableId).closest('.dataTables_wrapper').find('.dataTables_filter').prepend(`<div class="add-datatables">${buttonsHtml}</div>`);
-          }
+        const searchLabel = container.querySelector('.dt-search label, .dataTables_filter label');
+        if (searchLabel) {
+          searchLabel.setAttribute('data-phrase', 'Search');
         }
-
-        // Get the actual DOM element from jQuery (or fallback to document)
-        const filterEl = ($filter.length && $filter[0]) || $(filterSelector)[0] || document.querySelector(`${tableId}_filter`) || document.querySelector(`${tableId} .dataTables_filter`) || document;
-
-        // Defensive: if filterEl is still null, fall back to document to avoid passing null
-        applyTranslations(filterEl || document);
+        applyTranslations(container);
       }
 
-
-      // Mark DataTables UI elements with data-phrase
-      // $(`${tableId}_filter label`).attr('data-phrase', 'Search'); 
-      // $(`${tableId}_filter input[type="search"]`).attr('placeholder', ''); // optional
-      // // $(`#${tableId}_length label`).attr('data-phrase', 'Show entries');
-      // // $(`#${tableId}_info`).attr('data-phrase', 'Showing entries');
-      // $(`${tableId}_paginate .previous`).attr('data-phrase', 'Previous');
-      // $(`${tableId}_paginate .next`).attr('data-phrase', 'Next');
-
-      // Load translations and apply them AFTER DataTables is ready
     }
   }); 
 
   // Add button
-  $(document).on("click", ".add-btn", () => {
+  $(table.table().container()).on("click", ".add-btn", () => {
     if (onAdd) onAdd();
   });
 
@@ -133,7 +113,7 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
   });
 
   // Import button
-  $(document).on("click", ".import-btn", () => {
+  $(table.table().container()).on("click", ".import-btn", () => {
     if (onImport) onImport();
   });
 

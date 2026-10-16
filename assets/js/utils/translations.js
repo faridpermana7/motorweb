@@ -3,49 +3,95 @@ import { API_BASE_URL, configReady } from '../config.js';
 import { apiFetch } from './api.js';
 let translations = {};
 
-// Load translations (normalizes keys to lowercase)
+function normalizePhraseKey(phrase) {
+  return (phrase || "").toString().toLowerCase().trim();
+}
+
+function isIndonesianLanguage(language) {
+  const normalized = (language || "").toString().toLowerCase().trim().replace(/_/g, "-");
+  return normalized === "id" ||
+    normalized.startsWith("id-") ||
+    normalized.startsWith("indonesia") ||
+    normalized.startsWith("indonesian") ||
+    normalized.startsWith("bahasa indonesia");
+}
+
+function normalizeTranslationMap(source) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    return {};
+  }
+
+  return Object.keys(source).reduce((acc, phrase) => {
+    const key = normalizePhraseKey(phrase);
+    if (key && typeof source[phrase] === "string" && source[phrase].trim()) {
+      acc[key] = source[phrase];
+    }
+    return acc;
+  }, {});
+}
+
+// Refresh translations from the selected language, using a verified cache only if offline.
 export async function loadTranslations() {
   await configReady;
 
+  let cachedTranslations = {};
+  translations = {};
+
   try {
     const configs = JSON.parse(localStorage.getItem("configurations") || "{}");
-    if (configs["Application_language_indonesia"] !== "true") {
+    if (String(configs["Application_language_indonesia"]).toLowerCase() !== "true") {
+      translations = {};
       console.log("Skipping translations: Application_language_indonesia is not enabled");
       return;
     }
 
-    const cached = localStorage.getItem("translations");
-    if (cached) {
-      // cached should already be normalized, but normalize again to be safe
-      const parsed = JSON.parse(cached);
-      translations = Object.keys(parsed).reduce((acc, k) => {
-        acc[k.toLowerCase().trim()] = parsed[k];
-        return acc;
-      }, {});
-      console.log("Translations loaded from localStorage:", translations);
-      return;
+    if (localStorage.getItem("translations_language") === "id") {
+      const cached = localStorage.getItem("translations");
+      if (cached) {
+        try {
+          cachedTranslations = normalizeTranslationMap(JSON.parse(cached));
+        } catch (err) {
+          console.warn("Ignoring invalid cached translations.", err);
+        }
+      }
     }
 
     const data = await apiFetch(`${API_BASE_URL}/phrases`);
-    console.log("Translations loaded from API:", data);
+    if (!Array.isArray(data)) {
+      throw new TypeError("Unexpected phrases response format");
+    }
 
-    // Normalize phrase keys to lowercase + trim
     translations = data.reduce((acc, row) => {
-      const phraseKey = (row.phrase || "").toString().toLowerCase().trim();
-      acc[phraseKey] = row.translation;
+      const language = (row.language || "").toString().trim();
+      if (language && !isIndonesianLanguage(language)) {
+        return acc;
+      }
+
+      const phraseKey = normalizePhraseKey(row.phrase);
+      const translation = (row.translation || "").toString().trim();
+      if (phraseKey && translation) {
+        acc[phraseKey] = translation;
+      }
       return acc;
     }, {});
 
+    console.log("Indonesian translations loaded from API:", translations);
     localStorage.setItem("translations", JSON.stringify(translations));
+    localStorage.setItem("translations_language", "id");
   } catch (err) {
-    console.error('Failed to load translations:', err);
+    if (Object.keys(cachedTranslations).length) {
+      translations = cachedTranslations;
+      console.warn("Unable to refresh Indonesian translations; using the verified cache.", err);
+    } else {
+      console.error('Failed to load translations:', err);
+    }
   }
 }
 
 // Lookup helper: case-insensitive, trims whitespace
 export function t(phraseKey) {
   if (!phraseKey && phraseKey !== "") return phraseKey;
-  const lookup = phraseKey.toString().toLowerCase().trim();
+  const lookup = normalizePhraseKey(phraseKey);
   return translations[lookup] || phraseKey;
 }
 
@@ -72,9 +118,7 @@ export function applyTranslations(scope = document) {
     const rawKey = el.getAttribute("data-phrase");
     if (!rawKey) return;
 
-    // Normalize the key for lookup but keep rawKey for fallback if needed
-    const normalizedKey = rawKey.toString().toLowerCase().trim();
-    const translated = t(normalizedKey);
+    const translated = t(rawKey);
 
     // Handle placeholder attribute
     if (el.hasAttribute("placeholder")) {

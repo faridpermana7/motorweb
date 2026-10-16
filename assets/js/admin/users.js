@@ -8,10 +8,36 @@ import { applyTranslations } from '../utils/translations.js';
 
 (function() {
     let usersTable; // declare at top of file 
+    var roleSelect = document.getElementById('roleSelect');
+
+    
+    // Fetch roles on page load
+    async function loadRoles() { 
+        apiFetch(`${API_BASE_URL}/roles`)
+            .then(data => {
+                console.log('Roles loaded:', data);
+                populateRoles(data);
+            })
+            .catch(err => {
+                console.error('Error loading roles:', err); 
+            });
+    }
+    
+    function populateRoles(roleData) {
+        roleSelect.innerHTML = '<option value="">-- Choose --</option>';
+        
+        roleData.forEach(x => {
+            const option = document.createElement('option');
+            option.value = x.id;
+            option.textContent = x.name;
+            roleSelect.appendChild(option);
+        });
+    } 
 
     function displayDatatables() {  
         const columns = [
             { data: "username", title: '<span data-phrase="Username">Username</span>' },
+            { data: "role_name", title: '<span data-phrase="Role">Role</span>' },
             { data: "email", title: '<span data-phrase="Email">Email</span>' }
         ];
 
@@ -47,7 +73,7 @@ import { applyTranslations } from '../utils/translations.js';
         loadPageHeader('Users');
         loadFooter();
         displayDatatables();
-        // whoamI(); 
+        await loadRoles();
     }
 
 
@@ -55,12 +81,15 @@ import { applyTranslations } from '../utils/translations.js';
         if(state === 'add') { 
             $("#editId").val('');
             $("#editUsername").val('');
+            $("#roleSelect").val("");
             $("#editEmail").val('');
             $("#editPassword").val('');
         }else{ 
             $("#editId").val(rowData.id);
             $("#editUsername").val(rowData.username);
             $("#editEmail").val(rowData.email);
+            $("#roleSelect").val(rowData.role_id); // Set the dropdown to the current role
+
             // $("#editPassword").val(rowData.password_hash); // we don't want to pre-fill the password field with the hash, so we leave it blank
         }
         
@@ -84,6 +113,7 @@ import { applyTranslations } from '../utils/translations.js';
         const payload = {
             username: $("#editUsername").val(),
             email: $("#editEmail").val(),
+            role_id: $("#roleSelect").val() ? parseInt($("#roleSelect").val()) : null,
             password: $("#editPassword").val() //we use password instead of password_hash because the API will hash it before saving to database
         };
 

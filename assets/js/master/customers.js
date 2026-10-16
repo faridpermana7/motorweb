@@ -7,8 +7,8 @@ import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-form
 import { applyTranslations } from '../utils/translations.js';
 
 (function() {
-    let customersTable; // declare at top of file 
-    const typeSelect = document.getElementById('typeSelect');
+    let customersTable; // declare at top of file  
+    var typeSelect = document.getElementById('typeSelect');
 
     
     // Fetch enums on page load
@@ -34,12 +34,7 @@ import { applyTranslations } from '../utils/translations.js';
                 typeSelect.appendChild(option);
             }  
         });
-    }
-        
-    // Handle type selection change
-    typeSelect.addEventListener('change', function() { 
-        $("#editTypeId").val(this.value);  
-    }); 
+    } 
 
     function displayDatatables() {  
         const columns = [
@@ -71,31 +66,25 @@ import { applyTranslations } from '../utils/translations.js';
         loadPageHeader('Customers');
         loadFooter();
         displayDatatables();
+        await loadEnums();
         // whoamI(); 
     }
 
 
     const openEditModal = (state, rowData) => {
-        if(state === "add") { 
-            $("#typeSelectContainer").show();   // visible in Add mode 
-            loadEnums(); // Load enums when opening add modal to populate dropdowns
-            
+        if(state === "add") {  
             $("#editId").val("");
             $("#editName").val("");
             $("#editPhone").val("");
-            $("#editTypeName").val("");
+            $("#typeSelect").val("");
             $("#editEmail").val("");
             $("#editAddress").val("");
         }
-        else { 
-            $("#typeSelectContainer").hide();   // hide in Edit mode
-            $("#typeTextContainer").show();   // show in Edit mode
-
+        else {  
             $("#editId").val(rowData.id);
             $("#editName").val(rowData.name);
-            $("#editPhone").val(rowData.phone);
-            $("#editTypeId").val(rowData.type_id);
-            $("#editTypeName").val(rowData.type_name);
+            $("#editPhone").val(rowData.phone); 
+            $("#typeSelect").val(rowData.type_id); // Set the dropdown to the current type
             $("#editEmail").val(rowData.email);
             $("#editAddress").val(rowData.address);
         } 
@@ -116,12 +105,12 @@ import { applyTranslations } from '../utils/translations.js';
 
     const handleEditSubmit = async e => {
         e.preventDefault();
-        const id = $("#editId").val();
+        const id = $("#editId").val(); 
         const payload = {
             name: $("#editName").val(),
             phone: $("#editPhone").val(),
             email: $("#editEmail").val(),
-            type_id: $("#editTypeId").val() ? parseInt($("#editTypeId").val()) : null,
+            type_id: $("#typeSelect").val() ? parseInt($("#typeSelect").val()) : null,
             address: $("#editAddress").val()
         };
 

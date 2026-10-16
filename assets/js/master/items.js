@@ -43,18 +43,7 @@ import { applyTranslations } from '../utils/translations.js';
                 categorySelect.appendChild(option);
             }
         });
-    }
-        
-    // Handle uom selection change
-    uomSelect.addEventListener('change', function() { 
-        $("#editUomId").val(this.value);  
-    });
-
-    // Handle uom selection change
-    categorySelect.addEventListener('change', function() { 
-        $("#editCategoryId").val(this.value);  
-    });
-
+    } 
     
     // Format while typing
     costPriceInput.addEventListener("input", (e) => {
@@ -130,47 +119,35 @@ import { applyTranslations } from '../utils/translations.js';
         loadPageHeader('Items');
         loadFooter();
         displayDatatables();
+        await loadEnums();
         // whoamI(); 
     }
 
 
     const openEditModal = (state, rowData) => {
-        if(state === "add") { 
-            $("#uomSelectContainer").show();   // visible in Add mode
-            $("#categorySelectContainer").show();   // visible in Add mode
-            $("#uomTextContainer").hide();   // hide in Add mode
-            $("#categoryTextContainer").hide();   // hide in Add mode
-            loadEnums(); // Load enums when opening add modal to populate dropdowns
-            
+        if(state === "add") {   
             $("#editId").val("");
             $("#editCode").val("");
             $("#editName").val("");
             $("#editBarcode").val("");
-            $("#editCategoryName").val("");
+            $("#categorySelect").val("");
             $("#editBrand").val("ASPIRA");
             $("#editDescription").val("");
-            $("#editUomName").val("");
+            $("#uomSelect").val("");
             $("#editMinimumStock").val("1");
             $("#editStock").val("12");
             $("#editCostPrice").val("5000");
             $("#editSellingPrice").val("10000");
         }
-        else {
-            $("#uomSelectContainer").hide();   // hide in Edit mode
-            $("#categorySelectContainer").hide();   // hide in Edit mode
-            $("#uomTextContainer").show();   // show in Edit mode
-            $("#categoryTextContainer").show();   // show in Edit mode
-
+        else { 
             $("#editId").val(rowData.id);
             $("#editCode").val(rowData.code);
             $("#editName").val(rowData.name);
             $("#editBarcode").val(rowData.barcode);
-            $("#editCategoryId").val(rowData.category_id);
-            $("#editCategoryName").val(rowData.category_name);
+            $("#categorySelect").val(rowData.category_id);
             $("#editBrand").val(rowData.brand);
             $("#editDescription").val(rowData.description);
-            $("#editUomId").val(rowData.uom_id);
-            $("#editUomName").val(rowData.uom_name);
+            $("#uomSelect").val(rowData.uom_id);
             $("#editMinimumStock").val(rowData.minimum_stock);
             $("#editStock").val(rowData.stock);
             $("#editCostPrice").val(formatCurrency(rowData.cost_price));
@@ -201,10 +178,10 @@ import { applyTranslations } from '../utils/translations.js';
             code: $("#editCode").val(),
             name: $("#editName").val(),
             barcode: $("#editBarcode").val(),
-            category_id: $("#editCategoryId").val() ? parseInt($("#editCategoryId").val()) : null,
+            category_id: $("#categorySelect").val() ? parseInt($("#categorySelect").val()) : null,
             brand: $("#editBrand").val(),
             description: $("#editDescription").val(),
-            uom_id: $("#editUomId").val() ? parseInt($("#editUomId").val()) : null,
+            uom_id: $("#uomSelect").val() ? parseInt($("#uomSelect").val()) : null,
             minimum_stock: $("#editMinimumStock").val() ? parseInt($("#editMinimumStock").val()) : 0,
             stock: $("#editStock").val() ? parseInt($("#editStock").val()) : 0,
             selling_price: unformatCurrency($("#editSellingPrice").val()) || 0,

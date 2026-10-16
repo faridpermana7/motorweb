@@ -30,13 +30,11 @@ function showAlert(message, variant = 'primary', timeout = 3000) {
 
     document.body.appendChild(wrapper);
 
+    wrapper.querySelector('.btn-close').addEventListener('click', () => wrapper.remove());
+
     if (timeout > 0) {
         setTimeout(() => {
-            const element = document.getElementById(alertId);
-            if (element) {
-                const bsAlert = bootstrap.Alert.getOrCreateInstance(element);
-                bsAlert.close();
-            }
+            wrapper.remove();
         }, timeout);
     }
 }

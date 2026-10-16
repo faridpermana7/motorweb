@@ -155,10 +155,7 @@ import { loadTranslations, applyTranslations } from './utils/translations.js';
 
             // 4) Now load the dashboard script(s) safely — it will call window.PerfectScrollbar,
             //     but the wrapper prevents throws on null elements
-            loadScripts(dashboardScripts).then(() => {
-                // Mark that app is ready
-                window.appReady = true;
-
+            loadScripts(dashboardScripts).then(async () => {
                 // Load external scripts asynchronously (non-blocking)
                 externalScripts.forEach(src => {
                 const script = document.createElement('script');
@@ -168,12 +165,10 @@ import { loadTranslations, applyTranslations } from './utils/translations.js';
                 document.head.appendChild(script);
                 });
 
-                // Load translations once globally
-                (async () => {
                 await loadTranslations();
                 applyTranslations(); // global pass for static UI
-                })();
 
+                window.appReady = true;
                 // Emit appReady event for page-specific scripts
                 window.dispatchEvent(new Event('appReady'));
             });

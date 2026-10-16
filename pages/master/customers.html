@@ -68,10 +68,6 @@
             <div class="modal-body">
               <form id="editForm">
                 <input type="hidden" id="editId">
-                <div class="mb-3" hidden>
-                  <label for="editTypeId" class="form-label" >Type ID</label>
-                  <input type="text" id="editTypeId" class="form-control" readonly>
-                </div>
                 <div class="mb-3">
                   <label for="editName" class="form-label" data-phrase="Name">Name</label>
                   <input type="text" id="editName" class="form-control">
@@ -89,13 +85,8 @@
                 <div class="row mb-3">
                   <div class="col-sm-6" id="typeSelectContainer">
                     <label for="typeSelect" class="form-label" data-phrase="Type">Select Type</label>
-                    <select class="form-control" id="typeSelect">
-                      <option value="">-- Choose Type --</option>
+                    <select class="form-control" id="typeSelect"> 
                     </select>
-                  </div>
-                  <div class="col-sm-6" id="typeTextContainer">
-                    <label for="editTypeName" class="form-label" data-phrase="Type">Type Name</label>
-                    <input type="text" id="editTypeName" class="form-control" readonly>
                   </div> 
                 </div>
                 <div class="mb-3">

@@ -1,5 +1,6 @@
 // Navigation menu utility, This file contains the shared navigation menu HTML and insertion logic
 import { API_BASE_URL, configReady } from '../config.js';
+import { applyTranslations } from './translations.js';
 
 const BASE_PATH = window.location.origin + "/";
 
@@ -70,6 +71,7 @@ function loadNavMenu(containerSelector = '#sidenav-main') {
     </div>
   `;
   sidenav.innerHTML = navHTML;
+  applyTranslations(sidenav);
   setActiveNavLink(sidenav);
   attachLogoutHandler(sidenav);
 }
@@ -206,6 +208,7 @@ function loadPageHeader(pageTitle, containerSelector = '#top-navbar') {
   }
 
   headerContainer.innerHTML = getTopNavbarHTML(pageTitle);
+  applyTranslations(headerContainer);
 }
 
 function getFooterHTML() {
@@ -260,6 +263,7 @@ function attachLogoutHandler(sidenav) {
 function clearSessionAndRedirect() {
   localStorage.removeItem('access_token');
   localStorage.removeItem('translations');
+  localStorage.removeItem('translations_language');
   window.location.href = `${BASE_PATH}pages/sign-in.html`;
 }
 

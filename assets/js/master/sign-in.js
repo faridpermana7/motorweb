@@ -1,3 +1,5 @@
+import '../utils/notifications.js';
+
 let API_BASE_URL = 'http://127.0.0.1:9999';
 const configPromise = fetch('../assets/js/config.json')
   .then(response => response.ok ? response.json() : Promise.reject(response))
@@ -9,18 +11,43 @@ const configPromise = fetch('../assets/js/config.json')
   });
 
 function requireLocationAccess() {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
+    if (!('geolocation' in navigator)) {
+      resolve({ latitude: 0, longitude: 0, unavailable: true });
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       pos => {
         const { latitude, longitude } = pos.coords;
-        resolve({ latitude, longitude });
+        resolve({ latitude, longitude, unavailable: false });
       },
-      err => {
-        reject("Location access denied");
-      }
+      () => {
+        // Some browsers deny geolocation on the current origin even if the OS permission is enabled.
+        // Do not block the login flow; fall back to a neutral location so the auth request can continue.
+        resolve({ latitude: 0, longitude: 0, unavailable: true });
+      },
+      { timeout: 10000, enableHighAccuracy: false }
     );
   });
 }
+
+document.querySelectorAll('.input-group-outline .form-control').forEach(input => {
+    const group = input.closest('.input-group-outline');
+    if (!group) return;
+
+    const updateFilledState = () => {
+        group.classList.toggle('is-filled', input.value.length > 0);
+    };
+
+    updateFilledState();
+    input.addEventListener('focus', () => group.classList.add('is-focused'));
+    input.addEventListener('blur', () => {
+        group.classList.remove('is-focused');
+        updateFilledState();
+    });
+    input.addEventListener('input', updateFilledState);
+});
 
 document.getElementById('signInBtn').addEventListener('click', async function() {
     await configPromise;
@@ -28,61 +55,60 @@ document.getElementById('signInBtn').addEventListener('click', async function() 
     const password = document.getElementById('password').value.trim();
 
     if (!username || !password) {
-        showAlert('Please enter both username and password.', 'warning');
+        window.showAlert('Please enter both username and password.', 'warning');
         return;
     }
 
-    requireLocationAccess()
-            .then (coords => { 
-                // Send POST request to login endpoint
-                fetch(`${API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        "X-Location": `${coords.latitude},${coords.longitude}`,
-                        "User-Agent": navigator.userAgent
-                    },
-                    body: new URLSearchParams({
-                        username: username,
-                        password: password,
-                    }),
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        if(response.status == 401){
-                            showAlert('Authentication failed: ' + 'Please check your username and password.', 'danger');
-                            throw new Error('Please check your username and password.'); 
-                        }
-                            else{
-                                showAlert('Internal server error: ' + 'Please try again later.', 'danger');
-                                throw new Error('The internal server error occurred. Please try again later.');
-                            } 
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Assuming the response has 'access_token'
-                    if (data.access_token) {
-                        // Store the token in localStorage
-                        
-                        localStorage.setItem('access_token', data.access_token); 
-                        localStorage.setItem("menus", JSON.stringify(data.menus || []));
+    const coords = await requireLocationAccess();
+    const headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': navigator.userAgent
+    };
 
-                        // Show success alert and redirect
-                        showAlert('Login successful! Redirecting...', 'success');
-                        setTimeout(() => {
-                            window.location.href = 'dashboard.html';
-                        }, 2000);
-                    } else {
-                        throw new Error('Token not received.');
-                    }
-                })
-                .catch(error => {
-                    showAlert('Login failed: ' + error.message, 'danger');
-                });
-            },
-            err => { 
-                showAlert('You must allow location access to use this service.', 'danger');
+    if (!coords.unavailable) {
+        headers['X-Location'] = `${coords.latitude},${coords.longitude}`;
+    } else {
+        console.warn('Location unavailable; continuing login without X-Location header.');
+    }
+
+    fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers,
+        body: new URLSearchParams({
+            username: username,
+            password: password,
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            if(response.status == 401){
+                window.showAlert('Authentication failed: ' + 'Please check your username and password.', 'danger');
+                throw new Error('Please check your username and password.'); 
             }
-        );
+                else{
+                    window.showAlert('Internal server error: ' + 'Please try again later.', 'danger');
+                    throw new Error('The internal server error occurred. Please try again later.');
+                } 
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Assuming the response has 'access_token'
+        if (data.access_token) {
+            // Store the token in localStorage
+            localStorage.setItem('access_token', data.access_token); 
+            localStorage.setItem("menus", JSON.stringify(data.menus || []));
+
+            // Show success alert and redirect
+            window.showAlert('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        } else {
+            throw new Error('Token not received.');
+        }
+    })
+    .catch(error => {
+        window.showAlert('Login failed: ' + error.message, 'danger');
+    });
 });

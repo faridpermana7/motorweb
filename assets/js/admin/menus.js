@@ -10,7 +10,32 @@ import { applyTranslations } from '../utils/translations.js';
     let menusTable; // declare at top of file 
     const parentSelect = document.getElementById('parentSelect'); 
     const hasParentCheckbox = document.getElementById("hasParent");
+    var roleSelect = document.getElementById('roleSelect');
     
+    
+    // Fetch roles on page load
+    async function loadRoles() { 
+        apiFetch(`${API_BASE_URL}/roles`)
+            .then(data => {
+                console.log('Roles loaded:', data);
+                populateRoles(data);
+            })
+            .catch(err => {
+                console.error('Error loading roles:', err); 
+            });
+    }
+    
+    function populateRoles(roleData) {
+        roleSelect.innerHTML = '<option value="">-- Choose --</option>';
+        
+        roleData.forEach(x => {
+            const option = document.createElement('option');
+            option.value = x.id;
+            option.textContent = x.name;
+            roleSelect.appendChild(option);
+        });
+    } 
+
     // Fetch enums on page load
     async function loadParents(parentId = null) { 
         apiFetch(`${API_BASE_URL}/menus/parents`)
@@ -65,10 +90,11 @@ import { applyTranslations } from '../utils/translations.js';
 
     function displayDatatables() {  
         const columns = [  
-            { data: "parent_name", title: '<span data-phrase="Name">Parent Name</span>' },
+            { data: "parent_name", title: '<span data-phrase="Parent">Parent</span>' },
             { data: "label", title: '<span data-phrase="Label">Label</span>' },
             { data: "path", title: '<span data-phrase="Path">Path</span>' },
             { data: "icon", title: '<span data-phrase="Icon">Icon</span>' },
+            { data: "role_name", title: '<span data-phrase="Role">Role</span>' },
             { data: "is_active", title: '<span data-phrase="Is Active">Is Active</span>' },
             { data: "sort_order", title: '<span data-phrase="Sort Order">Sort Order</span>' }
         ];
@@ -105,6 +131,7 @@ import { applyTranslations } from '../utils/translations.js';
         loadPageHeader('Users');
         loadFooter();
         displayDatatables();
+        await loadRoles();
         // whoamI(); 
     }
 
@@ -115,6 +142,7 @@ import { applyTranslations } from '../utils/translations.js';
             $("#editLabel").val('');
             $("#editPath").val('');
             $("#editIcon").val('');
+            $("#roleSelect").val("");
             $("#editIsActive").prop('checked', true);
             $("#editSortOrder").val(0); 
             // $("#editParentName").val("");
@@ -125,6 +153,8 @@ import { applyTranslations } from '../utils/translations.js';
             $("#editPath").val(rowData.path);
             $("#editIcon").val(rowData.icon);
             $("#editParentId").val(rowData.parent_id);
+            $("#roleSelect").val(rowData.role_id); // Set the dropdown to the current role
+
             // $("#editParentName").val(rowData.parent_name);
             $("#editIsActive").prop('checked', rowData.is_active);
             $("#editSortOrder").val(rowData.sort_order); 
@@ -161,6 +191,7 @@ import { applyTranslations } from '../utils/translations.js';
             path: $("#editPath").val(),
             icon: $("#editIcon").val(),
             is_active: $("#editIsActive").is(":checked"),
+            role_id: $("#roleSelect").val() ? parseInt($("#roleSelect").val()) : null, 
             parent_id: $("#editParentId").val() ? parseInt($("#editParentId").val()) : null,
             sort_order: parseInt($("#editSortOrder").val())
         };
