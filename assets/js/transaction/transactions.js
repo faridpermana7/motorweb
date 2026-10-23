@@ -59,8 +59,8 @@ import { applyTranslations } from '../utils/translations.js';
         data.forEach(x => {
             const option = document.createElement('option');
             option.value = x.id;
-            option.textContent = x.name;
-            customerSelect.appendChild(option);
+            option.textContent = x.name + (x.type_name ? ` (${x.type_name})` : ''); // Show type if available
+            ui.customerSelect.appendChild(option);
         });
     }
     // Fetch categories from enum_tables API
@@ -137,9 +137,48 @@ import { applyTranslations } from '../utils/translations.js';
     // #endregion
 
     // #region datatables
+
+
+    const importColumns = [
+        "customer_name", "customer_type", "payment_method", "discount", "tax_name", "tax_value", "total"
+    ];
+
+    async function exportTransactionsCsv() {
+        try {
+            const transactions = await apiFetch(`${API_BASE_URL}/transactions`);
+            if (!Array.isArray(transactions)) {
+                throw new TypeError("Unexpected transactions response format");
+            }
+            if (!transactions.length) {
+                showAlert("There are no transactions to export.", "warning");
+                return;
+            }
+            const csvRows = [
+                importColumns,
+                ...transactions.map(transaction => importColumns.map(column => transaction[column] ?? ""))
+            ];
+            const csv = csvRows
+                .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(","))
+                .join("\r\n");
+            const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "transactions-export.csv";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (err) {
+            console.error("Transaction export failed:", err);
+            showAlert(err.message || "Unable to export transactions.");
+        }
+    }
+
     function displayDatatables() {  
         const columns = [ 
             { data: "customer_name", title: '<span data-phrase="Customer Name">Customer Name</span>' },
+            { data: "customer_type", title: '<span data-phrase="Customer Type">Customer Type</span>' },
             { data: "payment_method", title : '<span data-phrase="Payment Method">Payment Method</span>' }, 
             {
                 data: "discount",
@@ -186,7 +225,12 @@ import { applyTranslations } from '../utils/translations.js';
             onEdit: rowData => openEditModal("edit", rowData),
             onDelete: id => openDeleteModal(id),
             onSubmit: handleEditSubmit,
-            onConfirmDelete: handleDeleteConfirm
+            onConfirmDelete: handleDeleteConfirm,
+            enableImport: false, // set to true to enable import button
+            onImport: null, // set to null or a function to handle import
+            onImportConfirm: null, // set to null or a function to handle import confirmation
+            enableExport: true,
+            onExport: exportTransactionsCsv
         }); 
     } 
     // #endregion
@@ -389,7 +433,7 @@ import { applyTranslations } from '../utils/translations.js';
 
         // Basic validation
         if (!payload.customer_id) {
-            await alert("Customer is a required field.", "warning");
+            await showAlert("Customer is a required field.", "warning");
             return;
         } 
 

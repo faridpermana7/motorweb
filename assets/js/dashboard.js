@@ -12,15 +12,19 @@ import { formatCurrency } from './utils/data-formater.js';
     totalUsers: document.getElementById('totalUsers'),
     totalAll: document.getElementById('totalAll'),
     profitAll: document.getElementById('profitAll'),
+    taxAll: document.getElementById('taxAll'),
+    creditAll: document.getElementById('creditAll'),
     topProductsTitle: document.getElementById('topProductsTitle'),
     topProductsByRevenueTitle: document.getElementById('topProductsByRevenueTitle'),
     topProductsTableBody: document.getElementById('topProductsTableBody'),
     topProductsByRevenueTableBody: document.getElementById('topProductsByRevenueTableBody'),
+    topCustomersByCreditTableBody: document.getElementById('topCustomersByCreditTableBody'),
+    topCustomersByPointTableBody: document.getElementById('topCustomersByPointTableBody'),
+    topCustomersByCreditTitle: document.getElementById('topCustomersByCreditTitle'),
+    topCustomersByPointTitle: document.getElementById('topCustomersByPointTitle'),
     updatedDashboard1: document.getElementById('updatedDashboard1'),
     updatedDashboard2: document.getElementById('updatedDashboard2'),
-    updatedDashboard3: document.getElementById('updatedDashboard3'),
-    salesMonths: document.getElementById('salesMonths'),
-    profitMonths: document.getElementById('profitMonths'),
+    updatedDashboard3: document.getElementById('updatedDashboard3'), 
     totalMonths: document.getElementById('totalMonths'),
   };
 
@@ -50,20 +54,39 @@ import { formatCurrency } from './utils/data-formater.js';
                     .map(Number) // convert each string to a number
                     .reduce((a, b) => a + b, 0)
                 );
+            ui.creditAll.textContent = formatCurrency(
+                response.month_credit
+                    .map(Number) // convert each string to a number
+                    .reduce((a, b) => a + b, 0)
+                );
+            ui.taxAll.textContent = formatCurrency(
+                response.month_tax
+                    .map(Number) // convert each string to a number
+                    .reduce((a, b) => a + b, 0)
+                );
             ui.totalMonths.textContent = `Last ${response.month_labels.length} months`;
-            ui.salesMonths.textContent = `Sales - ${response.month_labels.length} months`;
-            ui.profitMonths.textContent = `Profit - ${response.month_labels.length} months`;
             const topProductsByQuantity = Array.isArray(response.top_products_by_quantity)
                 ? response.top_products_by_quantity
                 : [];
             const topProductsByRevenue = Array.isArray(response.top_products_by_revenue)
                 ? response.top_products_by_revenue
                 : [];
+                
+            const topCustomersByCredit = Array.isArray(response.top_credit_customers)
+                ? response.top_credit_customers
+                : [];
+                
+            const topCustomersByPoint = Array.isArray(response.top_point_customers)
+                ? response.top_point_customers
+                : [];
             ui.topProductsTitle.textContent = `Top ${topProductsByQuantity.length} Products`;
             ui.topProductsByRevenueTitle.textContent = `Top ${topProductsByRevenue.length} Products by Revenue`;
+            ui.topCustomersByCreditTitle.textContent = `Top ${topCustomersByCredit.length} Customers by Credit`;
+            ui.topCustomersByPointTitle.textContent = `Top ${topCustomersByPoint.length} Customers by Point`;
             populateTopProducts(topProductsByQuantity);
             populateTopProductsByRevenue(topProductsByRevenue);
-
+            populateTopCustomersByCredit(topCustomersByCredit);
+            populateTopCustomersByPoint(topCustomersByPoint);
             // Chart 1: Bar
             const ctx = document.getElementById("chart-bars")?.getContext("2d");
             if (ctx) {
@@ -213,6 +236,47 @@ import { formatCurrency } from './utils/data-formater.js';
                 </td>
             `;
             ui.topProductsByRevenueTableBody.appendChild(row);
+        });
+    }
+    
+    function populateTopCustomersByCredit(customers) {
+        if (!ui.topCustomersByCreditTableBody) return;
+
+        // Clear existing rows
+        ui.topCustomersByCreditTableBody.innerHTML = '';
+
+        customers.forEach(customer => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="align-middle text-left text-sm">
+                    <p class="text-sm font-weight-bold mb-0">${customer.customer_name}</p> 
+                </td>
+                <td class="align-middle text-right text-sm">
+                    <p class="text-sm font-weight-bold mb-0">${formatCurrency(customer.value)}</p>
+                </td>
+            `;
+            ui.topCustomersByCreditTableBody.appendChild(row);
+        });
+    }
+
+    
+    function populateTopCustomersByPoint(customers) {
+        if (!ui.topCustomersByPointTableBody) return;
+
+        // Clear existing rows
+        ui.topCustomersByPointTableBody.innerHTML = '';
+
+        customers.forEach(customer => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="align-middle text-left text-sm">
+                    <p class="text-sm font-weight-bold mb-0">${customer.customer_name}</p> 
+                </td>
+                <td class="align-middle text-center text-sm">
+                    <p class="text-sm font-weight-bold mb-0">${(customer.value)}</p>
+                </td>
+            `;
+            ui.topCustomersByPointTableBody.appendChild(row);
         });
     }
 

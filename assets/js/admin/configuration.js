@@ -109,7 +109,12 @@ import { applyTranslations } from '../utils/translations.js';
                     case "string":
                     default:
                     li.innerHTML = `
-                        <strong class="text-dark">${cfg.attribute.replace(/_/g, " ")}:</strong> &nbsp; ${cfg.value}
+                    <label class="text-dark d-block mb-1">${cfg.attribute.replace(/_/g, " ")}:</label>
+                    <input type="text" class="form-control w-100"
+                            id="${cfg.module}_${cfg.attribute}"
+                            data-type="${cfg.type}"
+                            data-id="${cfg.id}"
+                            value="${cfg.value}">
                     `;
                 }
 

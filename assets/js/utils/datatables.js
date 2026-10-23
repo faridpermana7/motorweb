@@ -3,50 +3,56 @@ import { formatDate } from '../utils/data-formater.js';
 import { applyTranslations } from '../utils/translations.js';
 
 export function initDataTable({ tableId, url, columns, moduleName, disableAdd = false,
-  onAdd, onEdit, onDelete, onSubmit, onConfirmDelete, enableImport = false, onImport, onImportConfirm }) { 
+  onAdd, onEdit, onDelete, onSubmit, onConfirmDelete, enableImport = false, onImport, onImportConfirm,
+  enableExport = false, onExport,
+  ajax: customAjax, includeId = true, includeAuditColumns = true, includeActions = true }) {
+  const standardColumns = [
+    ...(includeId ? [{ data: "id", title: "ID" }] : []),
+    ...columns,
+    ...(includeAuditColumns ? [
+      {
+        data: "created_at",
+        title: '<span data-phrase="Created At">Created At</span>',
+        render: data => formatDate(data),
+        className: "dt-right"
+      },
+      { data: "created_by", title: '<span data-phrase="Created By">Created By</span>' },
+      {
+        data: "updated_at",
+        title: '<span data-phrase="Updated At">Updated At</span>',
+        render: data => formatDate(data),
+        className: "dt-right"
+      },
+      { data: "updated_by", title: '<span data-phrase="Updated By">Updated By</span>' }
+    ] : []),
+    ...(includeActions ? [{
+      data: null,
+      title: '<span data-phrase="Actions">Actions</span>',
+      render: (data, type, row) => {
+        if (type === 'display') {
+          return `
+            <button class="btn btn-sm btn-dark edit-btn" data-id="${row.id}" data-phrase="Edit">Edit</button>
+            <button class="btn btn-sm btn-light delete-btn" data-id="${row.id}" data-phrase="Delete">Delete</button>
+          `;
+        }
+        return data;
+      },
+      orderable: false,
+      searchable: false
+    }] : [])
+  ];
+
   const table = $(tableId).DataTable({
     dom: '<"d-flex justify-content-between align-items-center"f>rt<"d-flex justify-content-between align-items-center pg-bottom"lip>',
-    ajax: (data, callback) => {
+    ajax: customAjax || ((data, callback) => {
       apiFetch(url)
         .then(result => callback({ data: result }))
         .catch(err => {
           console.error(`Failed to load ${moduleName}:`, err);
           callback({ data: [] });
         });
-    },
-    columns: [
-      { data: "id", title: "ID" },
-      ...columns, 
-      {
-          data: "created_at",
-          title: '<span data-phrase="Created At">Created At</span>',
-          render: data => formatDate(data),
-          className: "dt-right"
-      },
-      { data: "created_by", title: '<span data-phrase="Created By">Created By</span>' },
-      {
-          data: "updated_at",
-          title: '<span data-phrase="Updated At">Updated At</span>',
-          render: data => formatDate(data),
-          className: "dt-right"
-      },
-      { data: "updated_by", title: '<span data-phrase="Updated By">Updated By</span>' },
-      {
-        data: null,
-        title: '<span data-phrase="Actions">Actions</span>',
-        render: (data, type, row) => {
-          if (type === 'display') {
-            return `
-              <button class="btn btn-sm btn-dark edit-btn" data-id="${row.id}" data-phrase="Edit">Edit</button>
-              <button class="btn btn-sm btn-light delete-btn" data-id="${row.id}" data-phrase="Delete">Delete</button>
-            `;
-          }
-          return data; // fallback for sort/filter
-        },
-        orderable: false,
-        searchable: false
-      }
-    ],
+    }),
+    columns: standardColumns,
     responsive: true,
     pageLength: 10,
     scrollX: true,
@@ -73,6 +79,13 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
             <span data-phrase="${moduleName}">${moduleName}</span>
           </button>`;
       } 
+      if (enableExport) {
+        buttonsHtml += `
+          <button class="btn btn-sm btn-success export-btn ms-2">
+            <span data-phrase="Export">Export</span>
+            <span data-phrase="${moduleName}">${moduleName}</span>
+          </button>`;
+      }
 
       if (buttonsHtml) {  
         const container = table.table().container();
@@ -115,6 +128,10 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
   // Import button
   $(table.table().container()).on("click", ".import-btn", () => {
     if (onImport) onImport();
+  });
+
+  $(table.table().container()).on("click", ".export-btn", () => {
+    if (onExport) onExport();
   });
 
   // Double‑click row

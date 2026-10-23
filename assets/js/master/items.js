@@ -44,6 +44,108 @@ import { applyTranslations } from '../utils/translations.js';
             }
         });
     } 
+
+    const importColumns = [
+        "name", "uom_name", "category_name", "brand", "description", "code",
+        "minimum_stock", "stock", "cost_price", "selling_price", "barcode"
+    ];
+    const requiredImportColumns = importColumns.filter(
+        column => !["description", "code", "barcode"].includes(column)
+    );
+
+    function parseCsv(text) {
+        text = text.replace(/^\uFEFF/, "");
+        const rows = [];
+        let row = [];
+        let value = "";
+        let insideQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+
+            if (char === '"') {
+                if (insideQuotes && text[i + 1] === '"') {
+                    value += '"';
+                    i++;
+                } else {
+                    insideQuotes = !insideQuotes;
+                }
+            } else if (char === "," && !insideQuotes) {
+                row.push(value);
+                value = "";
+            } else if ((char === "\n" || char === "\r") && !insideQuotes) {
+                if (char === "\r" && text[i + 1] === "\n") i++;
+                row.push(value);
+                rows.push(row);
+                row = [];
+                value = "";
+            } else {
+                value += char;
+            }
+        }
+
+        if (insideQuotes) {
+            throw new Error("The CSV file contains an unclosed quoted field.");
+        }
+        if (value.length || row.length) {
+            row.push(value);
+            rows.push(row);
+        }
+
+        return rows.filter(csvRow => csvRow.some(cell => cell.trim()));
+    }
+
+    function downloadCsvTemplate() {
+        const sampleRow = [
+            "Sample Item", "Piece", "General", "Sample Brand",
+            "Example item description", "", "1", "12", "5000", "10000", "SAMPLE-001"
+        ];
+        const csv = [importColumns, sampleRow]
+            .map(row => row.map(value => `"${value.replace(/"/g, '""')}"`).join(","))
+            .join("\r\n");
+        const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "items-import-template.csv";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function exportItemsCsv() {
+        try {
+            const items = await apiFetch(`${API_BASE_URL}/items`);
+            if (!Array.isArray(items)) {
+                throw new TypeError("Unexpected items response format");
+            }
+            if (!items.length) {
+                alert("There are no items to export.");
+                return;
+            }
+
+            const csvRows = [
+                importColumns,
+                ...items.map(item => importColumns.map(column => item[column] ?? ""))
+            ];
+            const csv = csvRows
+                .map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(","))
+                .join("\r\n");
+            const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "items-export.csv";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (err) {
+            console.error("Item export failed:", err);
+            alert(err.message || "Unable to export items.");
+        }
+    }
     
     // Format while typing
     costPriceInput.addEventListener("input", (e) => {
@@ -102,7 +204,9 @@ import { applyTranslations } from '../utils/translations.js';
             onConfirmDelete: handleDeleteConfirm,
             enableImport: true,
             onImport: () => openImportModal(),
-            onImportConfirm: handleImportConfirm
+            onImportConfirm: handleImportConfirm,
+            enableExport: true,
+            onExport: exportItemsCsv
         }); 
 
         // // Form handlers
@@ -119,6 +223,7 @@ import { applyTranslations } from '../utils/translations.js';
         loadPageHeader('Items');
         loadFooter();
         displayDatatables();
+        document.getElementById("downloadCsvTemplate").addEventListener("click", downloadCsvTemplate);
         await loadEnums();
         // whoamI(); 
     }
@@ -192,7 +297,7 @@ import { applyTranslations } from '../utils/translations.js';
 
         // Basic validation
         if (!payload.name) {
-            await alert("Code and Name are required fields.", "warning");
+            await showAlert("Code and Name are required fields.", "danger");
             return;
         } 
 
@@ -244,7 +349,7 @@ import { applyTranslations } from '../utils/translations.js';
     const handleImportConfirm = async () => {  
         const fileInput = document.getElementById("csvFile");
         if (!fileInput.files.length) {
-            alert("Please select a CSV file first");
+            await showAlert("Please select a CSV file first", "danger");
             return;
         }
 
@@ -252,71 +357,78 @@ import { applyTranslations } from '../utils/translations.js';
         const reader = new FileReader();
 
         reader.onload = async (evt) => {
-            const text = evt.target.result;
-            const rows = text.split("\n").map(r => r.trim()).filter(r => r.length > 0);
-
-            // 🔹 Validate header
-            const header = rows[0].split(",").map(h => h.trim().toLowerCase());
-            const expected = ["name","uom_id","category_id","brand","description","minimum_stock","stock","cost_price","selling_price","barcode"];
-            for (const col of expected) {
-            if (!header.includes(col)) {
-                alert(`Invalid header: missing ${col}`);
-                return;
-            }
-            }
-
-            // 🔹 Parse and validate rows
-            const items = [];
-            for (let i = 1; i < rows.length; i++) {
-            const cols = rows[i].split(",").map(c => c.trim());
-            if (cols.length < expected.length) continue;
-
-            const obj = {};
-            expected.forEach((col, idx) => obj[col] = cols[idx]);
-
-            // Validation rules
-            if (obj.name.length > 255) {
-                console.error(`Row ${i}: name too long`);
-                continue;
-            }
-            if (obj.brand.length > 100) {
-                console.error(`Row ${i}: brand too long`);
-                continue;
-            }
-            if (isNaN(parseInt(obj.uom_id)) || isNaN(parseInt(obj.category_id))) {
-                console.error(`Row ${i}: uom_id/category_id must be int`);
-                continue;
-            }
-            if (isNaN(parseInt(obj.minimum_stock)) || isNaN(parseInt(obj.stock))) {
-                console.error(`Row ${i}: stock fields must be int`);
-                continue;
-            }
-            if (isNaN(parseFloat(obj.cost_price)) || isNaN(parseFloat(obj.selling_price))) {
-                console.error(`Row ${i}: prices must be float`);
-                continue;
-            }
-
-            // Convert types
-            items.push({
-                name: obj.name,
-                uom_id: parseInt(obj.uom_id),
-                category_id: parseInt(obj.category_id),
-                brand: obj.brand,
-                description: obj.description,
-                minimum_stock: parseInt(obj.minimum_stock),
-                stock: parseInt(obj.stock),
-                cost_price: parseFloat(obj.cost_price),
-                selling_price: parseFloat(obj.selling_price),
-                barcode: obj.barcode || null
-            });
-            }
-
-            if (!items.length) {
-            alert("No valid rows found in CSV");
-            return;
-            }
-            
             try {
+                const rows = parseCsv(evt.target.result);
+                if (!rows.length) {
+                    await showAlert("The CSV file is empty.", "danger");
+                    return;
+                }
+
+                const header = rows[0].map(column => column.trim().toLowerCase());
+                const missingColumn = requiredImportColumns.find(column => !header.includes(column));
+                if (missingColumn) {
+                    showAlert(`Invalid header: missing ${missingColumn}`);
+                    return;
+                }
+
+                const columnIndexes = Object.fromEntries(
+                    importColumns.map(column => [column, header.indexOf(column)])
+                );
+                const items = [];
+                const invalidRows = [];
+
+                for (let i = 1; i < rows.length; i++) {
+                    const values = rows[i].map(value => value.trim());
+                    const obj = Object.fromEntries(
+                        importColumns.map(column => [column, values[columnIndexes[column]] || ""])
+                    );
+                    const minimumStock = Number(obj.minimum_stock);
+                    const stock = Number(obj.stock);
+                    const costPrice = Number(obj.cost_price);
+                    const sellingPrice = Number(obj.selling_price);
+                    const rowErrors = [];
+                    const missingFields = requiredImportColumns.filter(column => !obj[column]);
+                    if (missingFields.length) {
+                        rowErrors.push(`missing ${missingFields.join(", ")}`);
+                    }
+                    if (obj.name.length > 255) rowErrors.push("name exceeds 255 characters");
+                    if (obj.brand.length > 100) rowErrors.push("brand exceeds 100 characters");
+                    if (!Number.isInteger(minimumStock)) rowErrors.push("minimum_stock must be an integer");
+                    if (!Number.isInteger(stock)) rowErrors.push("stock must be an integer");
+                    if (!obj.cost_price || !Number.isFinite(costPrice)) rowErrors.push("cost_price must be numeric");
+                    if (!obj.selling_price || !Number.isFinite(sellingPrice)) rowErrors.push("selling_price must be numeric");
+                    if (obj.code.length > 50) rowErrors.push("code exceeds 50 characters");
+                    if (obj.barcode.length > 50) rowErrors.push("barcode exceeds 50 characters");
+
+                    if (rowErrors.length) {
+                        invalidRows.push(`Row ${i + 1}: ${rowErrors.join("; ")}`);
+                        continue;
+                    }
+
+                    items.push({
+                        name: obj.name,
+                        uom_name: obj.uom_name,
+                        category_name: obj.category_name,
+                        brand: obj.brand,
+                        description: obj.description || null,
+                        code: obj.code || null,
+                        minimum_stock: minimumStock,
+                        stock,
+                        cost_price: costPrice,
+                        selling_price: sellingPrice,
+                        barcode: obj.barcode || null
+                    });
+                }
+
+                if (!items.length) { 
+                    showAlert(`No valid rows found in CSV.\n${invalidRows.join("\n")}`, 'danger');
+                    return;
+                }
+                if (invalidRows.length) {
+                    showAlert(`Import cancelled due to invalid rows:\n${invalidRows.join("\n")}`, 'danger');
+                    return;
+                }
+
                 await apiFetch(`${API_BASE_URL}/items/import`, {
                 method: "POST",
                 body: JSON.stringify(items),
@@ -325,7 +437,8 @@ import { applyTranslations } from '../utils/translations.js';
                 $("#importModal").modal("hide");
                 itemsTable.ajax.reload();
             } catch (err) {
-                console.error("Add Item failed:", err);
+                console.error("Item import failed:", err);
+                showAlert(err.message || "Unable to import items.", 'danger');
             } 
         };
 

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../../assets/img/favicon.png">
+  <title>Credit Report</title>
+  <script type="module" src="../../assets/js/bootstrap.js?v=1.0"></script>
+</head>
+<body class="g-sidenav-show bg-gray-100">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main"></aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <div id="top-navbar"></div>
+    <div class="container-fluid py-2">
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-header pb-0">
+              <h6 data-phrase="Credit Report">Credit Report</h6>
+            </div>
+            <div class="card-body">
+              <form id="creditFilters" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label" for="startDate" data-phrase="Start Date">Start date</label>
+                  <input class="form-control" id="startDate" type="date">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="endDate" data-phrase="End Date">End date</label>
+                  <input class="form-control" id="endDate" type="date">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" for="customerSelect" data-phrase="Customer">Customer</label>
+                  <select class="form-control" id="customerSelect" required>
+                    <option value="">Choose a Credit customer</option>
+                  </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                  <button class="btn btn-dark mb-0" id="applyFilters" type="submit" data-phrase="Apply">Apply</button>
+                  <button class="btn btn-outline-secondary mb-0" id="clearFilters" type="button" data-phrase="Clear">Clear</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card mb-4">
+            <div class="card-body d-flex justify-content-end align-items-center gap-3 flex-wrap">
+              <div class="text-end">
+                <div class="text-sm text-secondary" data-phrase="Total Credit Due">Total Credit Due</div>
+                <div class="h5 mb-0" id="totalCreditDue">IDR 0</div>
+              </div>
+              <button class="btn btn-success mb-0" id="payAllButton" type="button" disabled data-phrase="Pay All">Pay All</button>
+            </div>
+            <div class="card-body px-0 pb-2 pt-0">
+              <div class="table-responsive p-0">
+                <table id="creditsTable" class="display w-100">
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="page-footer"></div>
+    </div>
+  </main>
+  <div class="modal fade" id="creditPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" data-phrase="Confirm Payment">Confirm Payment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="creditPaymentConfirmationMessage"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel">Cancel</button>
+          <button type="button" class="btn btn-success" id="confirmCreditPayment" data-phrase="Confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="../../assets/js/report/credits.js"></script>
+</body>
+</html>

@@ -356,3 +356,14 @@ input.form-control.cashier-quantity-input {
 .input-group .select2-container--default .select2-selection--single {
   height: 44px !important;
 }
+
+
+.text-center {
+  text-align: center !important;
+}
+.text-right {
+  text-align: right !important;
+}
+.text-left {
+  text-align: left !important;
+}

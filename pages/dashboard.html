@@ -163,36 +163,85 @@
                 </div>
               </div>
             </div> 
-            <div class="col-xl-4 col-sm-4 mb-xl-0 mb-4">
-              <div class="card">
-                <div class="card-header p-2 ps-3">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <p class="text-sm mb-0 text-capitalize" id="salesMonths"></p>
-                      <h4 class="mb-0" id="totalAll">IDR 0</h4> 
+            
+            <div class="col-md-12 mb-lg-0 mb-4">
+              <div class="card mt-4">
+                <div class="card-header pb-0 p-3">
+                  <div class="row">
+                    <div class="col-6 d-flex align-items-center">
+                      <h6 class="mb-0" id="totalMonths"></h6>
                     </div>
-                    <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                      <i class="material-symbols-rounded opacity-10">weekend</i>
+                    <div class="col-6 text-end">
+                      </div>
+                  </div>
+                </div>
+                <div class="card-body p-3">
+                  <div class="row">
+                    <div class="col-md-6 mb-md-0 mb-4">
+                      <div class="card">
+                        <div class="card-header p-2 ps-3">
+                          <div class="d-flex justify-content-between">
+                            <div>
+                              <p class="text-sm mb-0 text-capitalize" data-phrase="salesmonths">Sales Months</p>
+                              <h4 class="mb-0" id="totalAll">IDR 0</h4> 
+                            </div>
+                            <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                              <i class="material-symbols-rounded opacity-10">weekend</i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                    <div class="col-md-6"> 
+                      <div class="card">
+                        <div class="card-header p-2 ps-3">
+                          <div class="d-flex justify-content-between">
+                            <div>
+                              <p class="text-sm mb-0 text-capitalize" data-phrase="profitmonths">Profit Months</p>
+                              <h4 class="mb-0" id="profitAll">IDR 0</h4> 
+                            </div>
+                            <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                              <i class="material-symbols-rounded opacity-10">weekend</i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                            
+                    <div class="col-md-6 mb-md-0 mb-4">
+                      <div class="card">
+                        <div class="card-header p-2 ps-3">
+                          <div class="d-flex justify-content-between">
+                            <div>
+                              <p class="text-sm mb-0 text-capitalize" data-phrase="taxmonths"></p>
+                              <h4 class="mb-0" id="taxAll">IDR 0</h4> 
+                            </div>
+                            <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                              <i class="material-symbols-rounded opacity-10">weekend</i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div> 
+                    <div class="col-md-6 mb-md-0 mb-4">
+                      <div class="card">
+                        <div class="card-header p-2 ps-3">
+                          <div class="d-flex justify-content-between">
+                            <div>
+                              <p class="text-sm mb-0 text-capitalize" data-phrase="creditmonths">Credit Months</p>
+                              <h4 class="mb-0" id="creditAll">IDR 0</h4> 
+                            </div>
+                            <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
+                              <i class="material-symbols-rounded opacity-10">weekend</i>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div> 
                   </div>
                 </div>
               </div>
-            </div> 
-            <div class="col-xl-4 col-sm-4 mb-xl-0 mb-4">
-              <div class="card">
-                <div class="card-header p-2 ps-3">
-                  <div class="d-flex justify-content-between">
-                    <div>
-                      <p class="text-sm mb-0 text-capitalize" id="profitMonths"></p>
-                      <h4 class="mb-0" id="profitAll">IDR 0</h4> 
-                    </div>
-                    <div class="icon icon-md icon-shape bg-gradient-dark shadow-dark shadow text-center border-radius-lg">
-                      <i class="material-symbols-rounded opacity-10">weekend</i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> 
+            </div>   
           </div>
           <div class="row">
             <div class="col-md-6 mt-4 mb-4">
@@ -216,7 +265,7 @@
             <div class="col-md-6 mt-4 mb-4">
               <div class="card ">
                 <div class="card-body">
-                  <h6 class="mb-0 " data-phrase="totalsales"> Total Sales </h6>
+                  <h6 class="mb-0 " data-phrase="salesmonths"> Total Sales </h6>
                   <p class="text-sm " data-phrase="last1week">last 1 week (based on sales)</p>
                   <div class="pe-2">
                     <div class="chart">
@@ -236,7 +285,7 @@
             <div class="col-md-12 mb-3">
               <div class="card">
                 <div class="card-body">
-                  <h6 class="mb-0 " data-phrase="totalsales">Total Sales</h6>
+                  <h6 class="mb-0 " data-phrase="salesmonths">Total Sales</h6>
                   <p class="text-sm" id="totalMonths"></p>
                   <div class="pe-2">
                     <div class="chart">
@@ -262,6 +311,9 @@
                   <div class="row">
                     <div class="col-lg-6 col-7">
                       <h6 id="topProductsTitle">Top 5 Products by Quantity</h6>
+                      <p class="text-sm mb-0" data-phrase="top5productsbyquantity_desc">
+                        These are the top 5 products based on quantity sold.
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -308,6 +360,66 @@
                         </tr>
                       </thead>
                       <tbody id="topProductsByRevenueTableBody">
+                        <!-- Populated by dashboard.js -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mb-4">
+            <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
+              <div class="card">
+                <div class="card-header pb-0">
+                  <div class="row">
+                    <div class="col-lg-6 col-7">
+                      <h6 id="topCustomersByCreditTitle">Top 5 Customers by Credit</h6>
+                      <p class="text-sm mb-0" data-phrase="top5customersbycredit_desc">
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body px-0 pb-2 pt-0">
+                  <div class="table-responsive">
+                    <table class="table align-items-center mb-0">
+                      <thead>
+                        <tr>
+                          <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="customername">Customer Name</th>
+                          <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="credit">Credit</th> 
+                        </tr>
+                      </thead>
+                      <tbody id="topCustomersByCreditTableBody">
+                        <!-- Populated by dashboard.js -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mb-4">
+            <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
+              <div class="card">
+                <div class="card-header pb-0">
+                  <div class="row">
+                    <div class="col-lg-6 col-7">
+                      <h6 id="topCustomersByPointTitle">Top 5 Customers by Point</h6>
+                      <p class="text-sm mb-0" data-phrase="top5customersbypoint_desc">
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body px-0 pb-2 pt-0">
+                  <div class="table-responsive">
+                    <table class="table align-items-center mb-0">
+                      <thead>
+                        <tr>
+                          <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="customername">Customer Name</th>
+                          <th class="text-uppercase text-secondary text-center text-xxs font-weight-bolder opacity-7" data-phrase="point">Point</th> 
+                        </tr>
+                      </thead>
+                      <tbody id="topCustomersByPointTableBody">
                         <!-- Populated by dashboard.js -->
                       </tbody>
                     </table>
