@@ -1,4 +1,5 @@
 import path from 'path';
+import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
@@ -10,10 +11,17 @@ import { globSync } from 'glob';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
+const { appendDailyLog } = require('./scripts/daily-log.cjs');
 // const pages = globSync('./pages/*.html');
 
 const isDev = process.env.NODE_ENV !== 'production';
 const pages = globSync('./pages/sign-in.html');
+const devLoggerScript = '<script src="/assets/js/dev-logger.js"></script>';
+
+function injectDevLogger(content) {
+  return content.toString().replace(/<head(\s[^>]*)?>/i, (head) => `${head}\n${devLoggerScript}`);
+}
 
 // Load SSL certificates for HTTPS support
 const certPath = path.join(__dirname, 'certs');
@@ -111,6 +119,14 @@ export default {
           },
         },
         {
+          from: 'pages',
+          to: 'pages',
+          globOptions: {
+            ignore: ['**/sign-in.html'],
+          },
+          ...(isDev ? { transform: (content) => injectDevLogger(content) } : {}),
+        },
+        {
           from: 'assets/css',
           to: 'assets/css',
           filter: async (resourcePath) => {
@@ -126,15 +142,9 @@ export default {
           from: 'index.html',
           to: 'index.html',
           noErrorOnMissing: true,
+          ...(isDev ? { transform: (content) => injectDevLogger(content) } : {}),
         },
         ...(!isDev ? [
-          {
-            from: 'pages',
-            to: 'pages',
-            globOptions: {
-              ignore: ['**/sign-in.html'],
-            },
-          },
           {
             from: 'node_modules/jquery/dist',
             to: 'node_modules/jquery/dist',
@@ -249,6 +259,88 @@ export default {
     },
   },
   devServer: {
+    setupMiddlewares(middlewares) {
+      middlewares.unshift({
+        name: 'browser-log-ingest',
+        middleware(req, res, next) {
+          if (req.url.split('?')[0] !== '/__dev-logs') {
+            next();
+            return;
+          }
+
+          res.setHeader('Content-Type', 'application/json');
+          if (req.method !== 'POST') {
+            res.statusCode = 405;
+            res.end(JSON.stringify({ error: 'POST required' }));
+            return;
+          }
+
+          const chunks = [];
+          let size = 0;
+          let tooLarge = false;
+          req.on('data', (chunk) => {
+            size += chunk.length;
+            if (size > 64 * 1024) {
+              tooLarge = true;
+            } else {
+              chunks.push(chunk);
+            }
+          });
+          req.on('end', () => {
+            if (tooLarge) {
+              res.statusCode = 413;
+              res.end(JSON.stringify({ error: 'Log batch too large' }));
+              return;
+            }
+
+            let payload;
+            try {
+              payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+            } catch {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Invalid JSON' }));
+              return;
+            }
+
+            if (!payload || !Array.isArray(payload.logs) || payload.logs.length > 25) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Expected up to 25 log entries' }));
+              return;
+            }
+
+            const validLevels = new Set(['INFO', 'WARN', 'ERROR']);
+            const validLogs = payload.logs.every((entry) => (
+              entry
+              && validLevels.has(entry.level)
+              && typeof entry.message === 'string'
+              && entry.message.length <= 4096
+              && typeof entry.page === 'string'
+              && entry.page.length <= 512
+            ));
+            if (!validLogs) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Invalid log entry' }));
+              return;
+            }
+
+            try {
+              payload.logs.forEach((entry) => {
+                appendDailyLog(entry.level, `BROWSER ${entry.page}: ${entry.message}`);
+              });
+            } catch (error) {
+              console.error(`Unable to append browser logs: ${error.message}`);
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: 'Unable to write logs' }));
+              return;
+            }
+
+            res.statusCode = 204;
+            res.end();
+          });
+        },
+      });
+      return middlewares;
+    },
     static: [
       {
         directory: path.join(__dirname, '.'),

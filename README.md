@@ -1,57 +1,27 @@
-# webclientnode
-node js web server with integration with local api and bmkg
+# Motor Web
 
-GULP:
-npm install --save-dev gulp gulp-cli gulp-uglify-es gulp-terser gulp-concat gulp-sourcemaps gulp-clean-css gulp-rename gulp-if del gulp-rev gulp-rev-replace gulp-htmlmin
-npm install --save-dev cross-env
+Node.js web client for the local API and BMKG integrations.
 
-npm install --save-dev gulp
+## Run locally
 
-# install deps first
+Requirements: Node.js and npm.
+
+```powershell
 npm ci
+npm run dev
+```
 
-# check port first
+Open https://localhost:8081/ and accept the development certificate warning if prompted. Press Ctrl+C in the terminal to stop the server. On Windows, `DEV.bat` runs the development server. Webpack's stdout/stderr is passed through to the parent process, so NSSM captures it in its configured stdout/stderr files rather than the daily application log. In development, browser `console.log`/`info`/`warn`/`error`/`debug` messages and uncaught page errors from all HTML pages are sent to `logs/motor_web-YYYY-MM-DD.log`. Sensitive object fields such as passwords, tokens, and authorization headers are redacted. Production pages do not load the browser logger. The `logs` folder is created automatically; application log files are appended to for the current date, and a new file is used each day. NSSM stdout and stderr can be directed to separate files such as `logs/nssm-stdout.log` and `logs/nssm-stderr.log`.
 
-PS D:\project\motorweb> netstat -ano | findstr :80
-  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4
-  TCP    0.0.0.0:8080           0.0.0.0:0              LISTENING       16608
-  TCP    [::]:80                [::]:0                 LISTENING       4
-  TCP    [::1]:80               [::1]:51543            ESTABLISHED     4
-  TCP    [::1]:80               [::1]:56719            ESTABLISHED     4
-  TCP    [::1]:51543            [::1]:80               ESTABLISHED     15220
-  TCP    [::1]:56719            [::1]:80               ESTABLISHED     15220
+## Build and deploy
 
-# run dev build
+```powershell
+npm run build        # Development build
+npm run build:prod   # Optimized production build
+npm run deploy       # Build and deploy to IIS (Windows)
+```
 
-npx gulp clean --verbose --force
-npx gulp build
-npm run build
-
-# run production build
-# PowerShell
-$env:NODE_ENV = 'production'
-npx gulp build
-# or use the buildProd task:
-npx gulp buildProd
-
-
-# PowerShell
-open powershell as administrator
-$env:NODE_ENV = 'production'
-npx gulp build
-
-
-
-# or directly
-npx gulp prod
-
-
-# Development: 
-DEV.bat — double-click it to start the HTTPS webpack server with hot reload at https://localhost:8081/. No administrator privileges are needed; press Ctrl+C to stop it.
-
-
-# Production: 
-DEPLOY_AS_ADMIN.bat — right-click and choose Run as administrator. It runs npm run deploy, building the produc
+IIS deployment may require administrator privileges. See [WEBPACK_SETUP.md](WEBPACK_SETUP.md) for build details and troubleshooting.
 
 
 # User
