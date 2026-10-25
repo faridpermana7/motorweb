@@ -5,7 +5,8 @@ import { applyTranslations } from '../utils/translations.js';
 export function initDataTable({ tableId, url, columns, moduleName, disableAdd = false,
   onAdd, onEdit, onDelete, onSubmit, onConfirmDelete, enableImport = false, onImport, onImportConfirm,
   enableExport = false, onExport,
-  ajax: customAjax, includeId = true, includeAuditColumns = true, includeActions = true }) {
+  ajax: customAjax, includeId = true, includeAuditColumns = true, includeActions = true,
+  serverSide = false, paging = true, scrollY = null }) {
   const standardColumns = [
     ...(includeId ? [{ data: "id", title: "ID" }] : []),
     ...columns,
@@ -41,22 +42,78 @@ export function initDataTable({ tableId, url, columns, moduleName, disableAdd = 
       searchable: false
     }] : [])
   ];
+  const idColumnIndex = standardColumns.findIndex(column => column.data === "id");
 
   const table = $(tableId).DataTable({
     dom: '<"d-flex justify-content-between align-items-center"f>rt<"d-flex justify-content-between align-items-center pg-bottom"lip>',
-    ajax: customAjax || ((data, callback) => {
-      apiFetch(url)
-        .then(result => callback({ data: result }))
-        .catch(err => {
-          console.error(`Failed to load ${moduleName}:`, err);
-          callback({ data: [] });
-        });
-    }),
+    order: idColumnIndex === -1 ? [] : [[idColumnIndex, "desc"]],
+    serverSide,
+    processing: serverSide,
+    ajax: customAjax || (serverSide
+      ? (request, callback) => {
+        const requestUrl = new URL(url, window.location.origin);
+        requestUrl.searchParams.set("skip", request.start);
+        requestUrl.searchParams.set("limit", request.length);
+
+        const search = request.search?.value?.trim();
+        if (search) {
+          requestUrl.searchParams.set("search", search);
+        } else {
+          requestUrl.searchParams.delete("search");
+        }
+
+        const order = request.order?.[0];
+        if (order) {
+          const column = request.columns[order.column]?.data;
+          if (typeof column === "string") {
+            requestUrl.searchParams.set("sort_by", column);
+            requestUrl.searchParams.set("sort_order", order.dir);
+          }
+        } else {
+          requestUrl.searchParams.delete("sort_by");
+          requestUrl.searchParams.delete("sort_order");
+        }
+
+        apiFetch(requestUrl.toString())
+          .then(result => {
+            if (!Array.isArray(result.records) || !Number.isFinite(result.total)) {
+              throw new TypeError(`Unexpected paginated response format for ${moduleName}`);
+            }
+            callback({
+              draw: request.draw,
+              recordsTotal: result.total,
+              recordsFiltered: Number.isFinite(result.filtered_total)
+                ? result.filtered_total
+                : result.total,
+              data: result.records
+            });
+          })
+          .catch(err => {
+            console.error(`Failed to load ${moduleName}:`, err);
+            callback({
+              draw: request.draw,
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: [],
+              error: err.message || `Failed to load ${moduleName}`
+            });
+          });
+      }
+      : (data, callback) => {
+        apiFetch(url)
+          .then(result => callback({ data: result }))
+          .catch(err => {
+            console.error(`Failed to load ${moduleName}:`, err);
+            callback({ data: [] });
+          });
+      }),
     columns: standardColumns,
     responsive: true,
     pageLength: 10,
     scrollX: true,
-    paging: true,
+    scrollY,
+    scrollCollapse: Boolean(scrollY),
+    paging,
     autoWidth: false,
     drawCallback: function () {
       // Scoped translation: only inside this table

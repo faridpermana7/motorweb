@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../../assets/img/favicon.png">
+  <title>Monitoring Stock</title>
+  <script type="module" src="../../assets/js/bootstrap.js?v=1.0"></script>
+  <style>
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .stocks-report-page {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 76px);
+      min-height: 0;
+      overflow: hidden;
+      padding: 0 1rem 1rem;
+    }
+
+    .stocks-report-heading {
+      flex: 0 0 auto;
+    }
+
+    .stocks-report-grid {
+      display: grid;
+      flex: 1 1 auto;
+      gap: 1rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      min-height: 0;
+    }
+
+    .stocks-report-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .stocks-report-card .card-body {
+      min-height: 0;
+    }
+
+    .stocks-report-table-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .stocks-report-table-body .dataTables_wrapper,
+    .stocks-report-table-body .dt-container {
+      height: 100%;
+    }
+
+    @media (max-width: 1199.98px) {
+      .stocks-report-grid {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body class="g-sidenav-show bg-gray-100">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main"></aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <div id="top-navbar"></div>
+    <div class="stocks-report-page">
+      <div class="stocks-report-heading d-flex justify-content-between align-items-center gap-3 flex-wrap py-2">
+        <div>
+          <h4 class="mb-1" data-phrase="Stock Report">Monitoring Stock</h4>
+          <p class="text-sm text-secondary mb-0" id="stockReportSummary">Loading stock levels...</p>
+          <small class="text-secondary" id="stockReportUpdatedAt"></small>
+        </div>
+        <button class="btn btn-outline-dark btn-sm mb-0" id="refreshStockReport" type="button">
+          <span class="material-symbols-rounded align-middle me-1">refresh</span>
+          <span data-phrase="Refresh">Refresh</span>
+        </button>
+      </div>
+      <div class="stocks-report-grid">
+        <section class="card stocks-report-card mb-0" aria-labelledby="minimumStockHeading">
+          <div class="card-header d-flex justify-content-between align-items-center pb-2">
+            <div>
+              <h6 class="mb-0" id="minimumStockHeading" data-phrase="At Minimum Stock">At Minimum Stock</h6>
+              <small class="text-secondary" data-phrase="Stock matches the minimum level">Stock matches the minimum level</small>
+            </div>
+            <span class="badge bg-gradient-warning text-dark" id="minimumStockCount">0</span>
+          </div>
+          <div class="card-body stocks-report-table-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table id="minimumStockTable" class="display w-100">
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+        <section class="card stocks-report-card mb-0" aria-labelledby="underStockHeading">
+          <div class="card-header d-flex justify-content-between align-items-center pb-2">
+            <div>
+              <h6 class="mb-0" id="underStockHeading" data-phrase="Below Minimum Stock">Below Minimum Stock</h6>
+              <small class="text-secondary" data-phrase="Stock is below the minimum level">Stock is below the minimum level</small>
+            </div>
+            <span class="badge bg-gradient-danger" id="underStockCount">0</span>
+          </div>
+          <div class="card-body stocks-report-table-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table id="underStockTable" class="display w-100">
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="../../assets/js/report/stocks.js"></script>
+</body>
+</html>

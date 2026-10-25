@@ -23,6 +23,20 @@ npm run deploy       # Build and deploy to IIS (Windows)
 
 IIS deployment may require administrator privileges. See [WEBPACK_SETUP.md](WEBPACK_SETUP.md) for build details and troubleshooting.
 
+## Items API pagination
+
+Tables default to sorting by ID descending so the newest records appear first.
+
+The Items table requests one page at a time from `GET /items`, using `skip` and
+`limit` query parameters. It also sends optional `search`, `sort_by`, and
+`sort_order` parameters. The API must apply these parameters before returning
+rows and respond with `{ "data": [...], "total": 123, "filtered_total": 45 }`,
+where `total` is the unfiltered count and `filtered_total` is the count after
+searching. `filtered_total` may be omitted when no search is applied. The CSV
+export continues to call `/items` without pagination parameters and expects the
+complete array.
+
+
 
 # User
 pfar-pfar Admin

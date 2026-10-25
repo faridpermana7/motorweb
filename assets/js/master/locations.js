@@ -246,6 +246,7 @@ function loadDatatables() {
         { data: "code" },
         { data: "district_id" }
     ],
+    order: [[0, "desc"]],
     layout: {
         topStart: {
             buttons: [

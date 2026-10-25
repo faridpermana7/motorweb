@@ -217,9 +217,10 @@ import { applyTranslations } from '../utils/translations.js';
 
         transactionsTable = initDataTable({
             tableId: "#transactionsTable",
-            url: `${API_BASE_URL}/transactions`,
+            url: `${API_BASE_URL}/transactions/pagination`,
             columns,
             moduleName: "Transaction",
+            serverSide: true,
             disableAdd: true, // set to true to hide Add button,
             onAdd: () => openEditModal("add", {}),
             onEdit: rowData => openEditModal("edit", rowData),

@@ -15,15 +15,12 @@ import { applyTranslations } from '../utils/translations.js';
 
     
     // Fetch enums on page load
-    async function loadEnums() { 
-        apiFetch(`${API_BASE_URL}/enum_tables`)
-            .then(data => {
-                console.log('Enums loaded:', data);
-                populateEnums(data);
-            })
-            .catch(err => {
-                console.error('Error loading enums:', err); 
-            });
+    async function loadEnums() {
+        const data = await apiFetch(`${API_BASE_URL}/enum_tables`);
+        if (!Array.isArray(data)) {
+            throw new TypeError("Unexpected enum response format");
+        }
+        populateEnums(data);
     }
     
     function populateEnums(enumData) {
@@ -194,9 +191,10 @@ import { applyTranslations } from '../utils/translations.js';
 
         itemsTable = initDataTable({
             tableId: "#itemsTable",
-            url: `${API_BASE_URL}/items`,
+            url: `${API_BASE_URL}/items/pagination`,
             columns,
             moduleName: "Item",
+            serverSide: true,
             onAdd: () => openEditModal("add", {}),
             onEdit: rowData => openEditModal("edit", rowData),
             onDelete: id => openDeleteModal(id),
@@ -224,8 +222,34 @@ import { applyTranslations } from '../utils/translations.js';
         loadFooter();
         displayDatatables();
         document.getElementById("downloadCsvTemplate").addEventListener("click", downloadCsvTemplate);
-        await loadEnums();
+        try {
+            await loadEnums();
+            await openItemFromQuery();
+        } catch (err) {
+            console.error("Failed to initialize item editor:", err);
+            window.showAlert(err.message || "Unable to open the requested item.", "danger");
+        }
         // whoamI(); 
+    }
+
+    async function openItemFromQuery() {
+        const itemId = new URLSearchParams(window.location.search).get("edit");
+        if (!itemId) return;
+
+        const items = await apiFetch(`${API_BASE_URL}/items`);
+        if (!Array.isArray(items)) {
+            throw new TypeError("Unexpected items response format");
+        }
+
+        const item = items.find(row => String(row.id) === itemId);
+        if (!item) {
+            throw new Error("The requested item could not be found.");
+        }
+
+        $("#editModal").one("shown.bs.modal", () => {
+            document.getElementById("editStock").focus();
+        });
+        openEditModal("edit", item);
     }
 
 
