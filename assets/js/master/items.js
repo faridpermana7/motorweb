@@ -1,7 +1,7 @@
 "use strict";
 import { API_BASE_URL, configReady } from '../config.js';
 import { apiFetch } from '../utils/api.js';
-import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
+import { loadNavMenu, loadPageHeader, loadFooter, publishStockUpdate } from '../utils/nav.js';
 import { initDataTable } from "../utils/datatables.js";
 import { formatDate, formatCurrency, unformatCurrency } from '../utils/data-formater.js';
 import { applyTranslations } from '../utils/translations.js';
@@ -333,6 +333,7 @@ import { applyTranslations } from '../utils/translations.js';
                 body: JSON.stringify(payload),
                 showSuccess: true
                 });
+                publishStockUpdate();
                 $("#editModal").modal("hide");
                 itemsTable.ajax.reload();
             } catch (err) {
@@ -346,6 +347,7 @@ import { applyTranslations } from '../utils/translations.js';
                 body: JSON.stringify(payload),
                 showSuccess: true
                 });
+                publishStockUpdate();
                 $("#editModal").modal("hide");
                 itemsTable.ajax.reload();
             } catch (err) {
@@ -362,6 +364,7 @@ import { applyTranslations } from '../utils/translations.js';
             method: "PUT",
             showSuccess: false
             });
+            publishStockUpdate();
             $("#deleteModal").modal("hide");
             itemsTable.ajax.reload();
         } catch (err) {
@@ -458,6 +461,7 @@ import { applyTranslations } from '../utils/translations.js';
                 body: JSON.stringify(items),
                 showSuccess: true
                 });
+                publishStockUpdate();
                 $("#importModal").modal("hide");
                 itemsTable.ajax.reload();
             } catch (err) {

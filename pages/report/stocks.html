@@ -58,6 +58,11 @@
       height: 100%;
     }
 
+    .stocks-report-table-body th,
+    .stocks-report-table-body td {
+      white-space: nowrap;
+    }
+
     @media (max-width: 1199.98px) {
       .stocks-report-grid {
         grid-template-columns: minmax(0, 1fr);
@@ -73,7 +78,7 @@
     <div class="stocks-report-page">
       <div class="stocks-report-heading d-flex justify-content-between align-items-center gap-3 flex-wrap py-2">
         <div>
-          <h4 class="mb-1" data-phrase="Stock Report">Monitoring Stock</h4>
+          <h4 class="mb-1" data-phrase="Monitoring Stock">Monitoring Stock</h4>
           <p class="text-sm text-secondary mb-0" id="stockReportSummary">Loading stock levels...</p>
           <small class="text-secondary" id="stockReportUpdatedAt"></small>
         </div>

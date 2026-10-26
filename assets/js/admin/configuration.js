@@ -2,9 +2,6 @@
 import { API_BASE_URL, configReady } from '../config.js';
 import { apiFetch } from '../utils/api.js';
 import { loadNavMenu, loadPageHeader, loadFooter } from '../utils/nav.js';
-import { initDataTable } from "../utils/datatables.js";
-import { formatDate } from '../utils/data-formater.js';
-import { applyTranslations } from '../utils/translations.js';
 
 (function() {
   const ui = {
@@ -20,6 +17,7 @@ import { applyTranslations } from '../utils/translations.js';
                 console.log('Configuration loaded:', data);  
                 renderConfigurations(data);
                 renderStoreSection(data);
+                renderTransactionSection(data);
             })
             .catch(err => {
                 console.error('Error loading parents:', err); 
@@ -39,6 +37,8 @@ import { applyTranslations } from '../utils/translations.js';
         
         // Group by module
         const grouped = configs.reduce((acc, item) => {
+            // Exclude modules containing "transaction"
+            if (item.module.toLowerCase().includes("transaction")) return acc;
             // Exclude attributes containing "store"
             if (item.attribute.toLowerCase().includes("store")) return acc;
 
@@ -165,6 +165,40 @@ import { applyTranslations } from '../utils/translations.js';
         container.appendChild(ul);
     }
 
+    function renderTransactionSection(configs) {
+        const container = document.getElementById("transactionSection");
+        container.innerHTML = "";
+
+        // Intro text
+        const intro = document.createElement("p");
+        intro.className = "text-sm";
+        intro.textContent = "Transaction Information";
+        container.appendChild(intro);
+
+        const ul = document.createElement("ul");
+        ul.className = "list-group";
+
+        configs
+            .filter(cfg => cfg.module.toLowerCase().includes("transaction"))
+            .forEach(cfg => {
+            const li = document.createElement("li");
+            li.className = "list-group-item border-0 ps-0 text-sm";
+ 
+            // Example for a text input
+            li.innerHTML = `
+            <label class="text-dark d-block mb-1">${cfg.attribute.replace(/_/g, " ")}:</label>
+            <input type="text" class="form-control w-100"
+                    id="${cfg.module}_${cfg.attribute}"
+                    data-type="${cfg.type}"
+                    data-id="${cfg.id}"
+                    value="${cfg.value}">
+            `;
+
+            ul.appendChild(li);
+        });
+
+        container.appendChild(ul);
+    }
 
     function initConfiguration() {
         console.log('Configuration JS loaded');

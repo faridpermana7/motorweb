@@ -1,7 +1,7 @@
 "use strict";
 import { API_BASE_URL, configReady } from '../config.js';
 import { apiFetch } from '../utils/api.js';
-import { loadNavMenu, loadPageHeader } from '../utils/nav.js';
+import { loadNavMenu, publishStockUpdate, loadPageHeader, refreshStockNotifications } from '../utils/nav.js';
 import { initDataTable } from '../utils/datatables.js';
 
 (function() {
@@ -143,6 +143,7 @@ import { initDataTable } from '../utils/datatables.js';
                 throw new TypeError('Unexpected stock report response format.');
             }
             updateReport(rows);
+            refreshStockNotifications();
         } catch (error) {
             console.error('Failed to load stock report:', error);
             window.showAlert(error.message || 'Unable to load the stock report.', 'danger');

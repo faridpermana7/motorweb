@@ -1,7 +1,7 @@
 "use strict";
 import { API_BASE_URL, configReady } from './config.js';
 import { apiFetch } from './utils/api.js';
-import { loadNavMenu } from './utils/nav.js';
+import { loadNavMenu, publishStockUpdate } from './utils/nav.js';
 import { formatDate, formatCurrency, unformatCurrency } from './utils/data-formater.js';
 import { applyTranslations } from './utils/translations.js';
 
@@ -356,6 +356,7 @@ import { applyTranslations } from './utils/translations.js';
       showSuccess: true
     });
 
+    publishStockUpdate();
     showAlert(
       `Sale completed. Total payable: ${formatCurrency(computeTotals().payable)}`,
       'success'

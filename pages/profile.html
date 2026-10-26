@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
+  <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+  <title>My Profile</title>
+  <script type="module" src="../assets/js/bootstrap.js?v=1.0"></script>
+</head>
+<body class="g-sidenav-show bg-gray-100">
+  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main"></aside>
+  <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
+    <div id="top-navbar"></div>
+    <div class="container-fluid py-3">
+      <div class="row">
+        <div class="col-12 col-xl-9 mx-auto">
+          <section class="card">
+            <div class="card-header pb-0">
+              <div class="d-flex align-items-center gap-3">
+                <div class="avatar avatar-xl bg-gradient-dark d-flex align-items-center justify-content-center">
+                  <span class="material-symbols-rounded text-white">account_circle</span>
+                </div>
+                <div>
+                  <h4 class="mb-1" id="profileName">My Profile</h4>
+                  <p class="text-sm text-secondary mb-0" id="profileSubtitle">Your account information</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="alert alert-light text-sm" role="note">
+                Your account information is read-only here. If you need to change anything, please ask your administrator.
+              </div>
+              <div id="profileLoading" class="py-4 text-center text-secondary" role="status">
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                Loading your account information...
+              </div>
+              <div id="profileError" class="alert alert-danger d-none" role="alert"></div>
+              <div id="profileDetails" class="row g-3" aria-live="polite"></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div id="page-footer"></div>
+    </div>
+  </main>
+  <script type="module" src="../assets/js/profile.js"></script>
+</body>
+</html>

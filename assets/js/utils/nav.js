@@ -3,6 +3,193 @@ import { API_BASE_URL, configReady } from '../config.js';
 import { applyTranslations } from './translations.js';
 
 const BASE_PATH = window.location.origin + "/";
+const STOCK_UPDATE_STORAGE_KEY = 'motorweb-stock-updated-at';
+let stockNotificationInterval;
+let stockNotificationRequest;
+let stockNotificationListenersReady = false;
+
+function renderStockNotifications(items) {
+  const list = document.getElementById('stockNotifications');
+  const count = document.getElementById('stockNotificationCount');
+  if (!list || !count) return;
+
+  count.textContent = String(items.length);
+  count.classList.toggle('d-none', items.length === 0);
+  list.replaceChildren();
+
+  if (!items.length) {
+    const emptyItem = document.createElement('li');
+    emptyItem.className = 'px-3 py-2 text-sm text-secondary';
+    emptyItem.textContent = 'No items at or below minimum stock.';
+    list.appendChild(emptyItem);
+    return;
+  }
+
+  const summaryItem = document.createElement('li');
+  summaryItem.className = 'px-3 pb-2 text-xs text-secondary';
+  summaryItem.textContent = `${items.length} item(s) at or below minimum stock`;
+  list.appendChild(summaryItem);
+
+  items.forEach(item => {
+    const listItem = document.createElement('li');
+    listItem.className = 'mb-2';
+
+    const link = document.createElement('a');
+    link.className = 'dropdown-item border-radius-md';
+    link.href = `${BASE_PATH}pages/master/items.html?edit=${encodeURIComponent(String(item.id))}`;
+
+    const row = document.createElement('div');
+    row.className = 'd-flex align-items-center py-1';
+
+    const icon = document.createElement('span');
+    icon.className = `avatar avatar-sm ${item.stock < item.minimumStock ? 'bg-gradient-danger' : 'bg-gradient-warning'} me-3 my-auto`;
+    icon.textContent = item.stock < item.minimumStock ? '!' : '↓';
+
+    const content = document.createElement('div');
+    content.className = 'd-flex flex-column justify-content-center';
+
+    const name = document.createElement('h6');
+    name.className = 'text-sm font-weight-normal mb-1';
+    name.textContent = String(item.name || item.code || `Item ${item.id}`);
+
+    const detail = document.createElement('p');
+    detail.className = 'text-xs text-secondary mb-0';
+    detail.textContent = `${item.stock} in stock · minimum ${item.minimumStock}`;
+
+    content.append(name, detail);
+    row.append(icon, content);
+    link.appendChild(row);
+    listItem.appendChild(link);
+    list.appendChild(listItem);
+  });
+
+  const reportItem = document.createElement('li');
+  const reportLink = document.createElement('a');
+  reportLink.className = 'dropdown-item text-center text-sm font-weight-bold';
+  reportLink.href = `${BASE_PATH}pages/report/stocks.html`;
+  reportLink.textContent = 'View stock report';
+  reportItem.appendChild(reportLink);
+  list.appendChild(reportItem);
+}
+
+async function refreshStockNotifications() {
+  if (stockNotificationRequest) return stockNotificationRequest;
+
+  stockNotificationRequest = (async () => {
+    try {
+      if (!API_BASE_URL) await configReady;
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_BASE_URL}/items/stocks`, {
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error(`Unable to refresh stock notifications (HTTP ${response.status}).`);
+      }
+
+      const items = await response.json();
+      if (!Array.isArray(items)) {
+        throw new TypeError('Unexpected stock notification response format.');
+      }
+
+      const lowStockItems = items
+        .map(item => ({
+          ...item,
+          stock: Number(item.stock),
+          minimumStock: Number(item.minimum_stock)
+        }))
+        .filter(item =>
+          item.id != null &&
+          Number.isFinite(item.stock) &&
+          Number.isFinite(item.minimumStock) &&
+          item.stock <= item.minimumStock
+        )
+        .sort((left, right) =>
+          (left.stock - left.minimumStock) - (right.stock - right.minimumStock) ||
+          String(left.name || '').localeCompare(String(right.name || ''))
+        );
+
+      renderStockNotifications(lowStockItems);
+    } catch (error) {
+      console.error('Failed to refresh stock notifications:', error);
+      const list = document.getElementById('stockNotifications');
+      if (list && !list.children.length) {
+        const errorItem = document.createElement('li');
+        errorItem.className = 'px-3 py-2 text-sm text-danger';
+        errorItem.textContent = 'Unable to load stock notifications.';
+        list.appendChild(errorItem);
+      }
+    } finally {
+      stockNotificationRequest = null;
+    }
+  })();
+
+  return stockNotificationRequest;
+}
+
+function initializeStockNotifications() {
+  const button = document.getElementById('dropdownMenuButton');
+  if (!button) return;
+
+  const dropdown = button.closest('.dropdown');
+  let list = document.getElementById('stockNotifications');
+  if (!list && dropdown) {
+    list = dropdown.querySelector('.dropdown-menu');
+    if (list) list.id = 'stockNotifications';
+  }
+  if (!list) {
+    list = document.createElement('ul');
+    list.className = 'dropdown-menu dropdown-menu-end px-2 py-3';
+    list.id = 'stockNotifications';
+    dropdown?.appendChild(list);
+  }
+  list.setAttribute('aria-labelledby', button.id);
+  list.style.maxHeight = '70vh';
+  list.style.minWidth = '18rem';
+  list.style.overflowY = 'auto';
+
+  if (!document.getElementById('stockNotificationCount')) {
+    const count = document.createElement('span');
+    count.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-gradient-danger d-none';
+    count.id = 'stockNotificationCount';
+    count.textContent = '0';
+    button.classList.add('position-relative');
+    button.appendChild(count);
+  }
+
+  if (button.dataset.stockNotificationsBound !== 'true') {
+    button.addEventListener('click', refreshStockNotifications);
+    button.dataset.stockNotificationsBound = 'true';
+  }
+
+  if (!stockNotificationListenersReady) {
+    window.addEventListener('focus', refreshStockNotifications);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') refreshStockNotifications();
+    });
+    window.addEventListener('storage', event => {
+      if (event.key === STOCK_UPDATE_STORAGE_KEY) refreshStockNotifications();
+    });
+    window.addEventListener('stock-data-updated', refreshStockNotifications);
+    stockNotificationListenersReady = true;
+  }
+
+  clearInterval(stockNotificationInterval);
+  stockNotificationInterval = setInterval(refreshStockNotifications, 30000);
+  refreshStockNotifications();
+}
+
+function publishStockUpdate() {
+  window.dispatchEvent(new Event('stock-data-updated'));
+  try {
+    localStorage.setItem(STOCK_UPDATE_STORAGE_KEY, String(Date.now()));
+  } catch (error) {
+    console.warn('Could not notify other tabs about the stock update:', error);
+  }
+}
 
 function renderMenu(menuItems, basePath) {
   return menuItems
@@ -74,6 +261,7 @@ function loadNavMenu(containerSelector = '#sidenav-main') {
   applyTranslations(sidenav);
   setActiveNavLink(sidenav);
   attachLogoutHandler(sidenav);
+  initializeStockNotifications();
 }
 
 function getTopNavbarHTML(pageTitle = '') {
@@ -89,19 +277,9 @@ function getTopNavbarHTML(pageTitle = '') {
           </ol>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-          <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-            <div class="input-group input-group-outline">
-              <label class="form-label" data-phrase="Type here">Type here...</label>
-              <input type="text" class="form-control">
-            </div>
+          <div class="ms-md-auto pe-md-3 d-flex align-items-center"> 
           </div>
-          <ul class="navbar-nav d-flex align-items-center  justify-content-end">
-            <li class="nav-item d-flex align-items-center">
-              <a class="btn btn-outline-primary btn-sm mb-0 me-3" target="_blank" href="" data-phrase="Online Builder">Online Builder</a>
-            </li>
-            <li class="mt-1">
-              <a class="github-button" href="" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub" data-phrase="Star">Star</a>
-            </li>
+          <ul class="navbar-nav d-flex align-items-center  justify-content-end"> 
             <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
               <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
                 <div class="sidenav-toggler-inner">
@@ -117,76 +295,12 @@ function getTopNavbarHTML(pageTitle = '') {
               </a>
             </li>
             <li class="nav-item dropdown pe-3 d-flex align-items-center">
-              <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+              <a href="javascript:;" class="nav-link text-body p-0 position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Stock notifications">
                 <i class="material-symbols-rounded">notifications</i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-gradient-danger d-none" id="stockNotificationCount">0</span>
               </a>
-              <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton">
-                <li class="mb-2">
-                  <a class="dropdown-item border-radius-md" href="javascript:;">
-                    <div class="d-flex py-1">
-                      <div class="my-auto">
-                        <img src="${BASE_PATH}assets/img/team-2.jpg" class="avatar avatar-sm  me-3 ">
-                      </div>
-                      <div class="d-flex flex-column justify-content-center">
-                        <h6 class="text-sm font-weight-normal mb-1">
-                          <span class="font-weight-bold">New message</span> from Laur
-                        </h6>
-                        <p class="text-xs text-secondary mb-0">
-                          <i class="fa fa-clock me-1"></i>   
-                          13 minutes ago
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li class="mb-2">
-                  <a class="dropdown-item border-radius-md" href="javascript:;">
-                    <div class="d-flex py-1">
-                      <div class="my-auto">
-                        <img src="${BASE_PATH}assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark  me-3 ">
-                      </div>
-                      <div class="d-flex flex-column justify-content-center">
-                        <h6 class="text-sm font-weight-normal mb-1">
-                          <span class="font-weight-bold">New album</span> by Travis Scott
-                        </h6>
-                        <p class="text-xs text-secondary mb-0">
-                          <i class="fa fa-clock me-1"></i>
-                          1 day
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item border-radius-md" href="javascript:;">
-                    <div class="d-flex py-1">
-                      <div class="avatar avatar-sm bg-gradient-secondary  me-3  my-auto">
-                        <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                          <title>credit-card</title>
-                          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                            <g transform="translate(-2169.000000, -745.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                              <g transform="translate(1716.000000, 291.000000)">
-                                <g transform="translate(453.000000, 454.000000)">
-                                  <path class="color-background" d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z" opacity="0.593633743"></path>
-                                  <path class="color-background" d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z"></path>
-                                </g>
-                              </g>
-                            </g>
-                          </g>
-                        </svg>
-                      </div>
-                      <div class="d-flex flex-column justify-content-center">
-                        <h6 class="text-sm font-weight-normal mb-1">
-                          Payment successfully completed
-                        </h6>
-                        <p class="text-xs text-secondary mb-0">
-                          <i class="fa fa-clock me-1"></i>
-                          2 days
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                </li>
+              <ul class="dropdown-menu dropdown-menu-end px-2 py-3 me-sm-n4" aria-labelledby="dropdownMenuButton" id="stockNotifications" style="max-height: 70vh; min-width: 18rem; overflow-y: auto;">
+                <li class="px-3 py-2 text-sm text-secondary">Loading stock notifications...</li>
               </ul>
             </li>
             <li class="nav-item d-flex align-items-center">
@@ -209,25 +323,27 @@ function loadPageHeader(pageTitle, containerSelector = '#top-navbar') {
 
   headerContainer.innerHTML = getTopNavbarHTML(pageTitle);
   applyTranslations(headerContainer);
+  initializeStockNotifications();
 }
 
 function getFooterHTML() {
-  return `
-    <footer class="footer">
-      <div class="container-fluid">
-        <div class="row align-items-center justify-content-lg-between">
-          <div class="col-lg-12 mb-lg-0 mb-4">
-            <div class="copyright text-center text-sm text-muted text-lg-start">
-              © 2026,
-              made with <i class="fa fa-heart"></i> by
-              <a href="" class="font-weight-bold" target="_blank">pfar</a>
-              for a better web.
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  `;
+  return ``;
+  // return `
+  //   <footer class="footer">
+  //     <div class="container-fluid">
+  //       <div class="row align-items-center justify-content-lg-between">
+  //         <div class="col-lg-12 mb-lg-0 mb-4">
+  //           <div class="copyright text-center text-sm text-muted text-lg-start">
+  //             © 2026,
+  //             made with <i class="fa fa-heart"></i> by
+  //             <a href="" class="font-weight-bold" target="_blank">pfar</a>
+  //             for a better web.
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </footer>
+  // `;
 }
 
 function loadFooter(containerSelector = '#page-footer') {
@@ -360,4 +476,12 @@ function activateNavLink(link) {
   }
 }
 
-export { loadNavMenu, loadPageHeader, loadFooter, setActiveNavLink, activateNavLink };
+export {
+  loadNavMenu,
+  loadPageHeader,
+  loadFooter,
+  setActiveNavLink,
+  activateNavLink,
+  publishStockUpdate,
+  refreshStockNotifications
+};

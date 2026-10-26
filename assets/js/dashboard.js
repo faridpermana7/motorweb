@@ -1,7 +1,7 @@
 // dashboard.js
 import { API_BASE_URL, configReady } from './config.js';
 import { apiFetch } from './utils/api.js';
-import { loadNavMenu } from './utils/nav.js';
+import { loadNavMenu, loadPageHeader } from './utils/nav.js';
 import { formatCurrency } from './utils/data-formater.js'; 
 
 (async function() {
@@ -32,6 +32,7 @@ import { formatCurrency } from './utils/data-formater.js';
         await configReady;
         console.log('Dashboard JS loaded');
         loadNavMenu();
+        loadPageHeader('Dashboard');
         
         // Initialize charts after nav is ready
         await initCharts();
